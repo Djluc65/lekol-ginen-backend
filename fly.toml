@@ -1,0 +1,32 @@
+app = "lekol-ginen-api"
+primary_region = "cdg"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "4000"
+  NODE_ENV = "production"
+  CORS_ORIGIN = "https://lekol-ginen.fly.dev"
+  RATE_LIMIT_MAX = "120"
+  RATE_LIMIT_WINDOW = "1 minute"
+  ANTHROPIC_MODEL = "claude-sonnet-4-6"
+
+[http_service]
+  internal_port = 4000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "10s"
+    method = "get"
+    path = "/health"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512

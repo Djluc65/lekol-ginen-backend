@@ -1,0 +1,8 @@
+node_modules
+# Keep environment variables out of version control
+.env
+dev.db
+data.ms/
+prisma/generated-client/
+
+/src/generated/prisma

@@ -2,6 +2,12 @@
 // npm install --save-dev prisma dotenv
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const defaultSqlitePath = resolve(__dirname, "dev.db");
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -9,6 +15,9 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    url:
+      process.env["DATABASE_URL"] && process.env["DATABASE_URL"].startsWith("file:")
+        ? process.env["DATABASE_URL"]
+        : `file:${defaultSqlitePath}`,
   },
 });

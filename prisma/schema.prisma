@@ -26,9 +26,15 @@ model User {
   updatedAt     DateTime  @updatedAt
 
   refreshTokens  RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+  oauthAccounts  OAuthAccount[]
   posts          Post[]
   comments       Comment[]
   likes          Like[]
+  communityMemberships CommunityMember[]
+  notifications  Notification[] @relation("notificationRecipient")
+  notificationsSent Notification[] @relation("notificationActor")
+  communityInvitesCreated CommunityInvite[]
   
   followers      Follow[] @relation("following")
   following      Follow[] @relation("follower")
@@ -41,6 +47,21 @@ model User {
   sentMessages   Message[]
 }
 
+model OAuthAccount {
+  id                String   @id @default(uuid())
+  provider          String
+  providerAccountId String
+  userId            String
+  email             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
 model RefreshToken {
   id         String   @id @default(uuid())
   userId     String
@@ -48,6 +69,20 @@ model RefreshToken {
   tokenHash  String
   expiresAt  DateTime
   createdAt  DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([tokenHash, expiresAt, usedAt])
 }
 
 model Follow {
@@ -82,6 +117,7 @@ model Post {
   body         String?
   mediaUrls    String?   // JSON string or comma-separated for SQLite
   lwaId        String?   // cultural link (e.g. 'papa-legba')
+  communityId  String?
   tags         String?   // JSON string or comma-separated
   lang         String    @default("fr")
   likesCount   Int       @default(0)
@@ -92,6 +128,73 @@ model Post {
 
   comments     Comment[]
   likes        Like[]
+  community    Community? @relation(fields: [communityId], references: [id], onDelete: SetNull)
+  notifications Notification[]
+}
+
+model Community {
+  id           String   @id @default(uuid())
+  name         String
+  slug         String   @unique
+  description  String?
+  avatarUrl    String?
+  coverUrl     String?
+  type         String   @default("public") // public, closed, secret
+  membersCount Int      @default(0)
+  postsCount   Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  members CommunityMember[]
+  posts   Post[]
+  invites CommunityInvite[]
+  notifications Notification[]
+}
+
+model CommunityMember {
+  communityId String
+  userId      String
+  role        String   @default("member") // creator, admin, moderator, member, banned
+  joinedAt    DateTime @default(now())
+
+  community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([communityId, userId])
+}
+
+model CommunityInvite {
+  id           String    @id @default(uuid())
+  communityId  String
+  createdById  String?
+  token        String    @unique
+  role         String    @default("member") // member, moderator
+  maxUses      Int?      // null = unlimited
+  usesCount    Int       @default(0)
+  expiresAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  community    Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  createdBy    User?     @relation(fields: [createdById], references: [id], onDelete: SetNull)
+}
+
+model Notification {
+  id          String    @id @default(uuid())
+  userId      String
+  type        String
+  actorId     String?
+  postId      String?
+  communityId String?
+  data        String?
+  readAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  user        User      @relation("notificationRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  actor       User?     @relation("notificationActor", fields: [actorId], references: [id], onDelete: SetNull)
+  post        Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  community   Community? @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt, createdAt])
 }
 
 model Comment {

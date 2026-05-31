@@ -20,6 +20,8 @@ import uploadRoutes from './routes/upload.js';
 import postsRoutes from './routes/posts.js';
 import usersRoutes from './routes/users.js';
 import searchRoutes from './routes/search.js';
+import communitiesRoutes from './routes/communities.js';
+import notificationsRoutes from './routes/notifications.js';
 import { initMeilisearch } from './lib/meilisearch.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -62,6 +64,8 @@ async function build() {
   await fastify.register(uploadRoutes, { prefix: '/api/upload' });
   await fastify.register(postsRoutes, { prefix: '/api/posts' });
   await fastify.register(usersRoutes, { prefix: '/api/users' });
+  await fastify.register(communitiesRoutes, { prefix: '/api/communities' });
+  await fastify.register(notificationsRoutes, { prefix: '/api/notifications' });
   await fastify.register(searchRoutes, { prefix: '/api/search' });
 
   return fastify;

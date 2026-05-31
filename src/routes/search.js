@@ -205,9 +205,126 @@ function legacySearchConcepts(query, limit) {
   return hits;
 }
 
+function legacySearchRituals(query, limit) {
+  const q = foldText(query);
+  if (!q) return [];
+  const items = Array.isArray(legacyData?.RITUALS) ? legacyData.RITUALS : [];
+  if (q === 'rituel' || q === 'rituels' || q === 'ritual' || q === 'rituals' || q === 'pratique' || q === 'pratiques') {
+    return items.slice(0, limit);
+  }
+  const n = (s) => foldText(s);
+
+  const score = (r) => {
+    const qn = q;
+    if (!qn) return 1;
+    let sc = 0;
+    const title = n(r.title ?? r.name ?? '');
+    const sub = n(r.sub ?? '');
+    const resume = n(r.resume ?? '');
+    const lwa = n(r.lwa ?? '');
+    const cat = n(r.cat ?? r.tag ?? '');
+    if (title.includes(qn)) sc += 10;
+    if (sub.includes(qn)) sc += 2;
+    if (lwa.includes(qn)) sc += 3;
+    if (resume.includes(qn)) sc += 1;
+    if (cat.includes(qn)) sc += 1;
+
+    const kw = Array.isArray(r.keywords) ? r.keywords : Array.isArray(r.kw) ? r.kw : [];
+    for (const k of kw) {
+      const kn = n(k);
+      if (!kn) continue;
+      if (kn === qn) sc += 8;
+      else if (kn.includes(qn)) sc += 4;
+      else if (qn.includes(kn) && kn.length > 3) sc += 2;
+    }
+
+    const details = n(r.details ?? '');
+    const steps = Array.isArray(r.steps) ? r.steps.join(' ') : '';
+    const ingredients = Array.isArray(r.ingredients) ? r.ingredients.join(' ') : '';
+    const extra = `${details} ${steps} ${ingredients}`;
+    if (n(extra).includes(qn)) sc += 1;
+    return sc;
+  };
+
+  return items
+    .map((r) => ({ r, sc: score(r || {}) }))
+    .filter((x) => x.sc > 0)
+    .sort((a, b) => b.sc - a.sc)
+    .slice(0, limit)
+    .map((x) => x.r);
+}
+
+function legacySearchRecipes(query, limit) {
+  const q = foldText(query);
+  if (!q) return [];
+  const items = Array.isArray(legacyData?.RECIPES) ? legacyData.RECIPES : [];
+  if (q === 'recette' || q === 'recettes' || q === 'recipe' || q === 'recipes') {
+    return items.slice(0, limit);
+  }
+  const n = (s) => foldText(s);
+
+  const score = (r) => {
+    const qn = q;
+    if (!qn) return 1;
+    let sc = 0;
+    const title = n(r.title ?? r.name ?? '');
+    const sub = n(r.sub ?? '');
+    const lwa = n(r.lwa ?? '');
+    const cat = n(r.cat ?? r.tag ?? '');
+    const moment = n(r.moment ?? '');
+    if (title.includes(qn)) sc += 10;
+    if (sub.includes(qn)) sc += 2;
+    if (lwa.includes(qn)) sc += 3;
+    if (cat.includes(qn)) sc += 1;
+    if (moment.includes(qn)) sc += 1;
+
+    const kw = Array.isArray(r.keywords) ? r.keywords : Array.isArray(r.kw) ? r.kw : [];
+    for (const k of kw) {
+      const kn = n(k);
+      if (!kn) continue;
+      if (kn === qn) sc += 8;
+      else if (kn.includes(qn)) sc += 4;
+      else if (qn.includes(kn) && kn.length > 3) sc += 2;
+    }
+
+    const details = n(r.details ?? '');
+    const steps = Array.isArray(r.steps) ? r.steps.join(' ') : '';
+    const ingredients = Array.isArray(r.ingredients) ? r.ingredients.join(' ') : '';
+    const extra = `${details} ${steps} ${ingredients}`;
+    if (n(extra).includes(qn)) sc += 1;
+    return sc;
+  };
+
+  return items
+    .map((r) => ({ r, sc: score(r || {}) }))
+    .filter((x) => x.sc > 0)
+    .sort((a, b) => b.sc - a.sc)
+    .slice(0, limit)
+    .map((x) => x.r);
+}
+
+function legacySearchSourceApproches(query, limit) {
+  let q = foldText(query);
+  if (!q) return [];
+  const items = Array.isArray(legacyData?.SOURCE_APPROCHES) ? legacyData.SOURCE_APPROCHES : [];
+  if (q === 'source' || q === 'la source' || q === 'bondye' || q === 'philosophie' || q === 'philosophies' || q === 'cosmologie') {
+    return items.slice(0, limit);
+  }
+  const hits = [];
+  for (const it of items) {
+    if (!it || typeof it !== 'object') continue;
+    const kw = Array.isArray(it.keywords) ? it.keywords.join(' ') : '';
+    const hay = `${it.title ?? ''} ${it.body ?? ''} ${kw}`;
+    if (!includesFolded(hay, q)) continue;
+    hits.push(it);
+    if (hits.length >= limit) break;
+  }
+  return hits;
+}
+
 export default async function searchRoutes(fastify) {
   fastify.get('/', async (req, reply) => {
-    const { q, limit = 20, type = 'lwa,posts,dreams,plants,history,audio,concepts' } = req.query;
+    const { q, limit = 20, type = 'lwa,posts,dreams,plants,history,audio,concepts,rituals,recipes,source' } = req.query;
     const numericLimit = Math.min(Number(limit) || 20, 50);
     
     const types = String(type)
@@ -222,6 +339,9 @@ export default async function searchRoutes(fastify) {
       if (types.includes('history')) results.history = legacySearchHistory(q, numericLimit);
       if (types.includes('audio')) results.audio = legacySearchAudio(q, numericLimit);
       if (types.includes('concepts')) results.concepts = legacySearchConcepts(q, numericLimit);
+      if (types.includes('rituals')) results.rituals = legacySearchRituals(q, numericLimit);
+      if (types.includes('recipes')) results.recipes = legacySearchRecipes(q, numericLimit);
+      if (types.includes('source')) results.source = legacySearchSourceApproches(q, numericLimit);
 
       if (!meilisearch) {
         if (types.includes('lwa')) results.lwa = legacySearchLwa(q, numericLimit);
@@ -248,6 +368,9 @@ export default async function searchRoutes(fastify) {
       fastify.log.error(err);
       if (types.includes('lwa')) results.lwa = legacySearchLwa(q, numericLimit);
       if (types.includes('posts')) results.posts = [];
+      if (types.includes('rituals')) results.rituals = legacySearchRituals(q, numericLimit);
+      if (types.includes('recipes')) results.recipes = legacySearchRecipes(q, numericLimit);
+      if (types.includes('source')) results.source = legacySearchSourceApproches(q, numericLimit);
       return results;
     }
   });

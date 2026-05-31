@@ -16,7 +16,9 @@ export const env = {
   port: Number(process.env.PORT || 4000),
   nodeEnv: process.env.NODE_ENV || 'development',
   mongoUri: required('MONGODB_URI', 'mongodb://localhost:27017/lekol_ginen'),
-  databaseUrl: process.env.DATABASE_URL || `file:${defaultSqlitePath}`,
+  databaseUrl: (process.env.DATABASE_URL && process.env.DATABASE_URL.startsWith('file:'))
+    ? process.env.DATABASE_URL
+    : `file:${defaultSqlitePath}`,
   jwtSecret: required('JWT_SECRET', 'dev-jwt-secret-change-me'),
   jwtRefreshSecret: required('JWT_REFRESH_SECRET', 'dev-jwt-refresh-secret-change-me'),
   jwtTtl: process.env.JWT_TTL || '15m',
@@ -29,4 +31,8 @@ export const env = {
   cloudinaryUrl: process.env.CLOUDINARY_URL || '',
   meilisearchHost: process.env.MEILISEARCH_HOST || 'http://localhost:7700',
   meilisearchKey: process.env.MEILISEARCH_KEY || '',
+  googleClientId: process.env.GOOGLE_CLIENT_ID || '',
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+  facebookClientId: process.env.FACEBOOK_CLIENT_ID || '',
+  facebookClientSecret: process.env.FACEBOOK_CLIENT_SECRET || '',
 };

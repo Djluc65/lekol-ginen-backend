@@ -16,6 +16,20 @@ const loginBody = z.object({
   password: z.string().min(1),
 });
 
+const changePasswordBody = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(8).max(200),
+});
+
+const forgotPasswordBody = z.object({
+  email: z.string().email(),
+});
+
+const resetPasswordBody = z.object({
+  token: z.string().min(10),
+  newPassword: z.string().min(8).max(200),
+});
+
 function toPublicJSON(user) {
   const { passwordHash, ...publicUser } = user;
   return publicUser;
@@ -82,6 +96,10 @@ function oauthPopupHtml({ origin, payload }) {
 </html>`;
 }
 
+function sha256Hex(input) {
+  return crypto.createHash('sha256').update(String(input || ''), 'utf8').digest('hex');
+}
+
 async function createSessionForUser({ user, reply }) {
   const accessToken = await reply.jwtSign({ sub: user.id, username: user.username, role: user.role });
 
@@ -137,23 +155,40 @@ async function findOrCreateUserFromOAuth({ provider, providerAccountId, email, d
   }
 
   if (!user) {
-    const usernameBase = normalizedEmail ? normalizedEmail.split('@')[0] : `${provider}${providerAccountId}`.slice(0, 20);
+    const usernameBase =
+      (displayName && String(displayName).trim()) ||
+      (normalizedEmail ? normalizedEmail.split('@')[0] : '') ||
+      `${provider}${providerAccountId}`.slice(0, 20);
     const username = await ensureUniqueUsername(usernameBase);
     const passwordHash = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 12);
+    const safeDisplayName =
+      (displayName && String(displayName).trim()) ||
+      (normalizedEmail ? normalizedEmail.split('@')[0] : '') ||
+      username;
     user = await prisma.user.create({
       data: {
         username,
         email: normalizedEmail || `${username}@invalid.local`,
         passwordHash,
-        displayName: displayName || username,
+        displayName: safeDisplayName,
         avatarUrl: avatarUrl || null,
         isVerified: Boolean(isVerified),
       }
     });
   } else {
     const update = {};
-    if (avatarUrl && !user.avatarUrl) update.avatarUrl = avatarUrl;
-    if (displayName && !user.displayName) update.displayName = displayName;
+    const currentAvatar = String(user.avatarUrl || '');
+    const canRefreshAvatar =
+      !currentAvatar ||
+      (provider === 'google' && currentAvatar.includes('googleusercontent.com')) ||
+      (provider === 'facebook' && (currentAvatar.includes('fbcdn') || currentAvatar.includes('facebook')));
+    if (avatarUrl && canRefreshAvatar) update.avatarUrl = avatarUrl;
+
+    const currentName = user.displayName ? String(user.displayName) : '';
+    const safeDisplayName = displayName ? String(displayName).trim() : '';
+    const canRefreshName = !currentName || currentName === user.username;
+    if (safeDisplayName && canRefreshName) update.displayName = safeDisplayName;
+
     if (isVerified && !user.isVerified) update.isVerified = true;
     if (Object.keys(update).length) {
       user = await prisma.user.update({ where: { id: user.id }, data: update });
@@ -291,6 +326,85 @@ export default async function authRoutes(fastify) {
     return { ok: true };
   });
 
+  fastify.post('/change-password', async (req, reply) => {
+    const parsed = changePasswordBody.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_body' });
+    try {
+      await req.jwtVerify();
+    } catch {
+      return reply.code(401).send({ error: 'unauthorized' });
+    }
+
+    const { currentPassword, newPassword } = parsed.data;
+    const user = await prisma.user.findUnique({ where: { id: req.user.sub } });
+    if (!user) return reply.code(404).send({ error: 'user_not_found' });
+
+    const ok = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!ok) return reply.code(400).send({ error: 'invalid_current_password' });
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    await prisma.user.update({ where: { id: user.id }, data: { passwordHash } });
+    await prisma.refreshToken.deleteMany({ where: { userId: user.id } });
+
+    const updated = await prisma.user.findUnique({ where: { id: user.id } });
+    const accessToken = await createSessionForUser({ user: updated, reply });
+    return { ok: true, accessToken, user: toPublicJSON(updated) };
+  });
+
+  fastify.post('/forgot-password', async (req, reply) => {
+    const parsed = forgotPasswordBody.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_body' });
+    const email = parsed.data.email.toLowerCase();
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return { ok: true };
+
+    const token = crypto.randomBytes(24).toString('hex');
+    const tokenHash = sha256Hex(token);
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+    await prisma.passwordResetToken.create({
+      data: {
+        userId: user.id,
+        tokenHash,
+        expiresAt,
+      }
+    });
+
+    if (env.nodeEnv !== 'production') {
+      return { ok: true, resetToken: token };
+    }
+    return { ok: true };
+  });
+
+  fastify.post('/reset-password', async (req, reply) => {
+    const parsed = resetPasswordBody.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'invalid_body' });
+    const { token, newPassword } = parsed.data;
+
+    const tokenHash = sha256Hex(token);
+    const doc = await prisma.passwordResetToken.findFirst({
+      where: {
+        tokenHash,
+        usedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      include: { user: true },
+    });
+    if (!doc || !doc.user) return reply.code(400).send({ error: 'invalid_or_expired_token' });
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    await prisma.$transaction([
+      prisma.user.update({ where: { id: doc.userId }, data: { passwordHash, isVerified: true } }),
+      prisma.passwordResetToken.update({ where: { id: doc.id }, data: { usedAt: new Date() } }),
+      prisma.refreshToken.deleteMany({ where: { userId: doc.userId } }),
+    ]);
+
+    reply.clearCookie('refreshToken', { path: '/' });
+    const updated = await prisma.user.findUnique({ where: { id: doc.userId } });
+    const accessToken = await createSessionForUser({ user: updated, reply });
+    return { ok: true, accessToken, user: toPublicJSON(updated) };
+  });
+
   // --- ME ---
   fastify.get('/me', async (req, reply) => {
     try {
@@ -388,9 +502,21 @@ export default async function authRoutes(fastify) {
         .type('text/html')
         .send(oauthPopupHtml({ origin, payload: { type: 'oauth_success', provider: 'google', accessToken, user: toPublicJSON(user) } }));
     } catch (err) {
+      try {
+        fastify.log.error({ err }, 'OAuth google callback failed');
+      } catch {}
       return reply
         .type('text/html')
-        .send(oauthPopupHtml({ origin, payload: { type: 'oauth_error', provider: 'google', error: { message: 'internal_error' } } }));
+        .send(oauthPopupHtml({
+          origin,
+          payload: {
+            type: 'oauth_error',
+            provider: 'google',
+            error: env.nodeEnv !== 'production'
+              ? { message: 'internal_error', details: String(err?.message || err) }
+              : { message: 'internal_error' },
+          }
+        }));
     }
   });
 
@@ -469,10 +595,22 @@ export default async function authRoutes(fastify) {
       return reply
         .type('text/html')
         .send(oauthPopupHtml({ origin, payload: { type: 'oauth_success', provider: 'facebook', accessToken, user: toPublicJSON(user) } }));
-    } catch (_err) {
+    } catch (err) {
+      try {
+        fastify.log.error({ err }, 'OAuth facebook callback failed');
+      } catch {}
       return reply
         .type('text/html')
-        .send(oauthPopupHtml({ origin, payload: { type: 'oauth_error', provider: 'facebook', error: { message: 'internal_error' } } }));
+        .send(oauthPopupHtml({
+          origin,
+          payload: {
+            type: 'oauth_error',
+            provider: 'facebook',
+            error: env.nodeEnv !== 'production'
+              ? { message: 'internal_error', details: String(err?.message || err) }
+              : { message: 'internal_error' },
+          }
+        }));
     }
   });
 }

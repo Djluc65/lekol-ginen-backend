@@ -1,4 +1,33 @@
 import { legacyData } from '../lib/legacy-data.js';
+import { readdirSync, statSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const IMAGE_ROOT = resolve(__dirname, '../../../Image');
+
+function safeReaddir(path) {
+  try {
+    return readdirSync(path);
+  } catch {
+    return [];
+  }
+}
+
+function toId(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
+function encodePathSegment(s) {
+  return encodeURIComponent(String(s || ''));
+}
 
 export default async function lwaRoutes(fastify) {
   const {
@@ -35,6 +64,59 @@ export default async function lwaRoutes(fastify) {
       default: return id;
     }
   };
+
+  const pickMainImage = (names) => {
+    const isImage = (n) => /\.(png|jpe?g|webp)$/i.test(String(n || ''));
+    const files = (names || []).filter(isImage);
+    if (!files.length) return null;
+    const notVeve = files.filter((n) => !/veve|v[eè]v[eè]/i.test(n));
+    const pool = notVeve.length ? notVeve : files;
+    const sorted = pool.slice().sort((a, b) => {
+      const ext = (s) => String(s).toLowerCase().split('.').pop();
+      const w = (s) => (ext(s) === 'png' ? 0 : (ext(s) === 'jpg' || ext(s) === 'jpeg') ? 1 : 2);
+      return w(a) - w(b);
+    });
+    return sorted[0];
+  };
+
+  const buildImageMap = () => {
+    const map = {};
+
+    const top = safeReaddir(IMAGE_ROOT);
+    for (const entry of top) {
+      const full = resolve(IMAGE_ROOT, entry);
+      let st = null;
+      try {
+        st = statSync(full);
+      } catch {
+        st = null;
+      }
+      if (!st) continue;
+
+      if (st.isDirectory()) {
+        const files = safeReaddir(full);
+        const main = pickMainImage(files);
+        const id = resolveId(toId(entry));
+        const urls = files
+          .filter((n) => /\.(png|jpe?g|webp)$/i.test(String(n || '')))
+          .map((n) => `/images/${encodePathSegment(entry)}/${encodePathSegment(n)}`);
+        if (id && !map[id] && main) {
+          map[id] = { imageUrl: `/images/${encodePathSegment(entry)}/${encodePathSegment(main)}`, imageUrls: urls };
+        }
+      } else if (st.isFile()) {
+        if (!/\.(png|jpe?g|webp)$/i.test(entry)) continue;
+        const base = entry.replace(/\.(png|jpe?g|webp)$/i, '');
+        const id = resolveId(toId(base));
+        if (id && !map[id]) {
+          map[id] = { imageUrl: `/images/${encodePathSegment(entry)}`, imageUrls: [`/images/${encodePathSegment(entry)}`] };
+        }
+      }
+    }
+
+    return map;
+  };
+
+  const imageMap = buildImageMap();
 
   const colorMap = {
     noir: '#1a1a1a',
@@ -255,6 +337,12 @@ export default async function lwaRoutes(fastify) {
       if (f.isGroup) continue;
       const id = resolveId(f.id);
       if (!have.has(id)) items.push(createFromFiche(f, id));
+    }
+    for (const l of items) {
+      const id = resolveId(l.id || l.slug || '');
+      const img = (id && imageMap[id]) ? imageMap[id] : null;
+      if (img?.imageUrl && !l.imageUrl) l.imageUrl = img.imageUrl;
+      if (Array.isArray(img?.imageUrls) && img.imageUrls.length && !l.imageUrls) l.imageUrls = img.imageUrls;
     }
     return items;
   })();

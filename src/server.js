@@ -6,6 +6,7 @@ import sensible from '@fastify/sensible';
 import multipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
 import { fileURLToPath } from 'node:url';
+import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { env } from './env.js';
 import { connectDb } from './db.js';
@@ -42,6 +43,15 @@ async function build() {
   await fastify.register(cors, { origin: env.corsOrigin, credentials: true });
   await fastify.register(rateLimit, { max: env.rateLimitMax, timeWindow: env.rateLimitWindow });
   await fastify.register(multipart, { limits: { fileSize: 8 * 1024 * 1024 } });
+
+  const imageDir = resolve(ROOT_DIR, 'Image');
+  if (existsSync(imageDir)) {
+    await fastify.register(fastifyStatic, {
+      root: imageDir,
+      prefix: '/images/',
+      decorateReply: false,
+    });
+  }
 
   if (env.nodeEnv === 'production') {
     const frontendDist = resolve(ROOT_DIR, 'frontend/dist');

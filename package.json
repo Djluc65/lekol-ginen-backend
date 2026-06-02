@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "PRISMA_CLIENT_ENGINE_TYPE=library node --watch src/server.js",
     "start": "PRISMA_CLIENT_ENGINE_TYPE=library node src/server.js",
-    "seed": "PRISMA_CLIENT_ENGINE_TYPE=library node src/seed/seed-lwa.js"
+    "seed": "PRISMA_CLIENT_ENGINE_TYPE=library node src/seed/seed-lwa.js",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",

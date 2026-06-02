@@ -1,10 +1,25 @@
-FROM node:22-alpine AS deps
+FROM node:22-bookworm-slim AS deps
 WORKDIR /app
-COPY package.json package-lock.json* ./
-COPY backend/package.json ./backend/
-RUN npm install --workspaces --include-workspace-root --omit=dev || npm install --omit=dev
 
-FROM node:22-alpine
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    python3 \
+    make \
+    g++ \
+    pkg-config \
+    libvips-dev \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY package.json package-lock.json ./
+COPY backend/package.json ./backend/
+COPY backend/prisma ./backend/prisma
+COPY backend/prisma.config.ts ./backend/prisma.config.ts
+
+RUN npm ci --workspace backend --include-workspace-root
+RUN npm prune --omit=dev --workspace backend --include-workspace-root
+
+FROM node:22-bookworm-slim
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=deps /app/node_modules ./node_modules

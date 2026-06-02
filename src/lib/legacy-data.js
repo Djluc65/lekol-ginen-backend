@@ -10,7 +10,10 @@ import { execFileSync } from 'node:child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const DATA_PATH = resolve(__dirname, '../../../data.jsx');
+const DATA_PATHS = [
+  resolve(__dirname, '../../data.jsx'),
+  resolve(__dirname, '../../../data.jsx'),
+];
 const ENCYCLOPEDIA_PATH = resolve(__dirname, '../../../vodou_haitien_encyclopedie.txt');
 const LWA_FICHES_PATH = resolve(__dirname, '../../../vodou_lwa_fiches_completes.txt');
 const LWA_VEVE_RECITS_SOURCES_PATH = resolve(__dirname, '../../../lwa_veve_recits_sources.html');
@@ -19,6 +22,15 @@ const RITUALS_PRACTICES_DOCX_PATH = resolve(__dirname, '../../../Skills/vodou_ri
 const RITUALS_ENGINE_HTML_PATH = resolve(__dirname, '../../../Skills/vodou_rituals_search_engine.html');
 const RECIPES_ENGINE_HTML_PATH = resolve(__dirname, '../../../Skills/recettes_rituels_search.html');
 const SOURCE_APPROCHES_PATH = resolve(__dirname, '../../../Skills/la_source_approches_philosophiques.txt');
+
+function resolveFirstExisting(paths) {
+  for (const p of paths) {
+    try {
+      if (existsSync(p)) return p;
+    } catch {}
+  }
+  return null;
+}
 
 function foldText(value) {
   return String(value || '')
@@ -840,7 +852,9 @@ function parseLwaVeveRecitsSourcesHtml(source) {
 }
 
 function load() {
-  const source = readFileSync(DATA_PATH, 'utf8');
+  const p = resolveFirstExisting(DATA_PATHS);
+  if (!p) throw new Error('Missing data.jsx (expected at backend/data.jsx or project root data.jsx)');
+  const source = readFileSync(p, 'utf8');
   const sandbox = { window: {}, console };
   vm.createContext(sandbox);
   vm.runInContext(source, sandbox, { filename: 'data.jsx' });

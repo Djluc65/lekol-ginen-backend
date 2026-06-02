@@ -24,7 +24,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=deps /app/node_modules ./node_modules
 COPY backend ./backend
-COPY data.jsx ./data.jsx
+COPY backend/data.jsx ./data.jsx
 WORKDIR /app/backend
 EXPOSE 4000
 CMD ["node", "src/server.js"]

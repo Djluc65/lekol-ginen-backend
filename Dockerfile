@@ -11,8 +11,7 @@ RUN apt-get update \
     pkg-config \
     libvips-dev \
   && rm -rf /var/lib/apt/lists/*
-
-COPY package.json package-lock.json ./
+COPY package.json ./
 COPY prisma ./prisma
 COPY prisma.config.ts ./
 

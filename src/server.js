@@ -55,10 +55,12 @@ async function build() {
 
   if (env.nodeEnv === 'production') {
     const frontendDist = resolve(ROOT_DIR, 'frontend/dist');
-    await fastify.register(fastifyStatic, {
-      root: frontendDist,
-      prefix: '/',
-    });
+    if (existsSync(frontendDist)) {
+      await fastify.register(fastifyStatic, {
+        root: frontendDist,
+        prefix: '/',
+      });
+    }
   }
 
   await fastify.register(authPlugin);

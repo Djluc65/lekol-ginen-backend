@@ -1,0 +1,652 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.wrap{padding:1rem 0}
+.search-row{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+.search-row input{flex:1;padding:10px 14px 10px 38px;font-size:14px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);background:var(--color-background-primary);color:var(--color-text-primary)}
+.search-row input:focus{outline:none;border-color:var(--color-border-primary)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--color-text-tertiary);pointer-events:none}
+.search-wrap{position:relative;flex:1}
+.filter-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+.ftab{padding:4px 11px;border-radius:20px;font-size:12px;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);transition:all .15s}
+.ftab.on{background:var(--color-background-primary);color:var(--color-text-primary);border-color:var(--color-border-primary);font-weight:500}
+.tags-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.tag{padding:3px 10px;border-radius:20px;font-size:12px;cursor:pointer;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.tag:hover{border-color:var(--color-border-secondary);color:var(--color-text-primary)}
+.cnt{font-size:12px;color:var(--color-text-tertiary);margin-bottom:10px}
+.list{display:flex;flex-direction:column;gap:10px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;cursor:pointer;transition:border-color .15s}
+.card:hover,.card.open{border-color:var(--color-border-secondary)}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;padding:13px 15px;gap:10px}
+.head-left{flex:1;min-width:0}
+.rname{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.rsub{font-size:12px;color:var(--color-text-secondary)}
+.head-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.badge{font-size:11px;padding:2px 8px;border-radius:10px;border:0.5px solid;white-space:nowrap}
+.b-pub{background:#E1F5EE;color:#085041;border-color:#5DCAA5}
+.b-ini{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+.b-fun{background:#F1EFE8;color:#444441;border-color:#B4B2A9}
+.b-bain{background:#E6F1FB;color:#042C53;border-color:#85B7EB}
+.b-prot{background:#EAF3DE;color:#173404;border-color:#97C459}
+.b-div{background:#FAEEDA;color:#412402;border-color:#EF9F27}
+.b-urg{background:#FCEBEB;color:#791F1F;border-color:#E24B4A}
+.b-obj{background:#FBEAF0;color:#4B1528;border-color:#ED93B1}
+.chevron{font-size:14px;color:var(--color-text-tertiary);transition:transform .2s}
+.card.open .chevron{transform:rotate(180deg)}
+.card-body{display:none;border-top:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary)}
+.card.open .card-body{display:block}
+.section{padding:12px 15px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.section:last-child{border-bottom:none}
+.slabel{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-tertiary);margin-bottom:6px}
+.sbody{font-size:13px;color:var(--color-text-primary);line-height:1.65}
+.steps{display:flex;flex-direction:column;gap:5px;margin-top:4px}
+.step{font-size:13px;color:var(--color-text-primary);padding:6px 10px;background:var(--color-background-primary);border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);line-height:1.5;display:flex;gap:8px;align-items:flex-start}
+.step-num{font-size:11px;font-weight:500;color:var(--color-text-tertiary);flex-shrink:0;min-width:18px;margin-top:1px}
+.ingr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:5px;margin-top:4px}
+.ingr{font-size:12px;padding:5px 9px;background:var(--color-background-primary);border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary)}
+.meta-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.meta{font-size:12px;color:var(--color-text-secondary);display:flex;align-items:center;gap:4px}
+.warn{background:#FCEBEB;border:0.5px solid #E24B4A;border-radius:var(--border-radius-md);padding:8px 12px;font-size:12.5px;color:#791F1F;line-height:1.6;margin-top:8px;display:flex;gap:7px}
+.tip{background:#E1F5EE;border:0.5px solid #5DCAA5;border-radius:var(--border-radius-md);padding:8px 12px;font-size:12.5px;color:#085041;line-height:1.6;margin-top:8px;display:flex;gap:7px}
+.no-res{text-align:center;padding:2rem;color:var(--color-text-tertiary);font-size:14px}
+.back-btn{display:flex;align-items:center;gap:6px;margin-bottom:14px;background:none;border:none;cursor:pointer;font-size:13px;color:var(--color-text-secondary);padding:0}
+</style>
+
+<div class="wrap">
+<h2 class="sr-only">Moteur de recherche des rituels et pratiques du vodou haïtien — 30 rituels avec étapes détaillées</h2>
+
+<div class="search-row">
+  <div class="search-wrap">
+    <i class="ti ti-search search-icon" aria-hidden="true"></i>
+    <input type="text" id="srch" placeholder="Chercher un rituel... ex: bain, protection, initiation, amour..." oninput="render()">
+  </div>
+  <button onclick="clearSearch()" style="font-size:12px;padding:8px 12px;border-radius:var(--border-radius-md)">Tout voir</button>
+</div>
+
+<div class="filter-row" id="filters"></div>
+<div class="tags-row" id="tags"></div>
+<div class="cnt" id="cnt"></div>
+<div class="list" id="list"></div>
+</div>
+
+<script>
+const DATA = [
+  {id:"sevis",name:"Sevis / Fèt Lwa",sub:"Cérémonie publique complète",cat:"public",
+   lwa:"Tous les lwa",duree:"Toute la nuit",qui:"Oungan + Manbo + hounsi",urgence:false,
+   kw:["sevis","fete","fèt","cérémonie","service","public","communautaire","lougarou","danse","tambour","tanbou","chant","nuit","possession","lwa","fèt lwa","sèvi","fete lwa","grande cérémonie","célébration","service africain"],
+   resume:"La cérémonie vodou publique complète. Dure toute la nuit, honore plusieurs lwa successivement.",
+   etapes:["Préparation 1-2 jours : autels, aliments rituels, décorations, tambours, drapo",
+     "Priyè Gineh : prières catholiques en français + litanie créole de tous les lwa",
+     "Salutation de Legba : il ouvre la barrière — sans lui rien n'est possible",
+     "Partie Rada : chants doux pour les lwa ancestraux (Danbala, Erzulie, Agwé...)",
+     "Transition Djowa : prière de passage du Rada au Petro",
+     "Partie Petro : rythmes intenses, lwa chauds (Ogou, Dantò, Kalfou...)",
+     "Partie Gede : Baron Samedi et famille (rhum au piment, humour sacré)",
+     "Manger Lwa : les lwa bénissent les aliments, festin communautaire",
+     "Clôture : remerciements, renvoi des esprits, nettoyage"],
+   ingredients:["Bougies des couleurs de chaque lwa","Farine de maïs pour vèvè","Rhum blanc et vieux","Parfums rituels","Animaux sacrifiés selon lwa","Aliments spécifiques de chaque lwa","Trois tambours Rada (manman, segon, boula)","Drapo brodés des lwa"],
+   tip:"Aucune cérémonie ne commence sans invoquer Legba. Toute omission est une offense.",
+   warn:null},
+
+  {id:"priye",name:"Priyè Gineh",sub:"Prière africaine d'ouverture",cat:"public",
+   lwa:"Tous les esprits de la maison",duree:"30 à 60 min",qui:"Oungan ou Manbo",urgence:false,
+   kw:["prière","priyè","gineh","africaine","priere africaine","ouverture","priye","langaj","français","créole","chant","honorer","litanie","invocation"],
+   resume:"La prière d'ouverture sacrée qui précède toute cérémonie. Elle honore successivement tous les saints et lwa.",
+   etapes:["Prières catholiques en français (héritage syncrétique)",
+     "Litanie créole de tous les saints et lwa honorés par la maison",
+     "Versets pour chaque esprit principal de la maison",
+     "Salutation de Hounto — l'esprit des tambours",
+     "Transition vers les chants individuels des lwa",
+     "Papa Legba invoqué en premier avant tout autre"],
+   ingredients:["Connaissance des chants de la maison","Mémoire de la tradition orale","Ason (crécelle) pour rythmer","Accompagnement des tambours","Bougie blanche allumée"],
+   tip:"La Priyè Gineh est la colonne vertébrale de toute cérémonie. Chaque maison a sa version légèrement différente selon sa lignée.",
+   warn:null},
+
+  {id:"manger-lwa",name:"Manger Lwa",sub:"Repas sacré offert aux lwa",cat:"public",
+   lwa:"Selon l'objectif",duree:"1 journée",qui:"Oungan, Manbo ou chef de famille",urgence:false,
+   kw:["manger","nourriture","repas","offrande","nourrir","manger lwa","festin","manje","aliment","cuisine","préparer","offrir","honorer lwa","nouriture"],
+   resume:"Préparer et offrir les aliments préférés d'un lwa pour l'honorer, demander une faveur ou exprimer de la gratitude.",
+   etapes:["Identifier le lwa à honorer et ses préférences alimentaires",
+     "Préparer les aliments dans le respect des tabous (tout blanc pour Danbala)",
+     "Dresser la table ou l'autel avec les couleurs du lwa",
+     "Invocation du lwa avec chants et prières spécifiques",
+     "Présentation silencieuse — le lwa 'mange' spirituellement",
+     "Attendre un signe (possession, odeur, mouvement de bougie)",
+     "Distribution communautaire : les fidèles partagent les restes bénis"],
+   ingredients:["Legba : maïs grillé, café noir, rhum, cacahuètes","Danbala : œuf blanc cru sur farine blanche, lait","Erzulie Freda : gâteaux sucrés, miel, champagne, roses","Ogou : viande rouge épicée, rhum vieux fort","Azaka : maïs, haricots, clairin","Agwé : poissons, champagne","Baron : rhum au piment, cigares, plantains mûrs","Marassa : tout en double (2 assiettes identiques)"],
+   tip:"Chaque aliment offert est une communion. Les restes bénis par le lwa transmettent sa grâce à ceux qui les consomment.",
+   warn:null},
+
+  {id:"drapo",name:"Sèvis Drapo",sub:"Procession des drapeaux sacrés",cat:"public",
+   lwa:"Selon les drapo portés",duree:"30 à 60 min",qui:"Laplas + porteurs de drapo",urgence:false,
+   kw:["drapo","drapeau","flag","procession","sévis drapo","laplas","pòt drapo","porte drapeau","brodé","sequins","cérémonie","ouverture","sevis drapo"],
+   resume:"Procession rituelle des drapeaux sacrés qui ouvre formellement les grandes cérémonies. Les drapo sont les présences vivantes des lwa.",
+   etapes:["Préparation des drapo : vérification, nettoyage rituel",
+     "Désignation des porteurs (pòt drapo) — initiés qualifiés",
+     "Sèvis drapo de (2 drapo) : pairing le plus courant Ogou + Danbala",
+     "Sèvis drapo twa (3 drapo) : si Erzulie Freda est honorée",
+     "Procession autour du poteau mitan avec tambours et chants",
+     "Salutation de chaque drapo par tous les initiés (inclinaison)",
+     "Dépôt sur l'autel ou maintien pendant la cérémonie"],
+   ingredients:["Drapo brodés des lwa (sequins, perles)","Tambours et percussions","Connaissance des chants correspondants"],
+   tip:"Les drapo ne se couchent jamais — ils représentent la présence debout du lwa. Les porter est un honneur réservé à des initiés spécialement formés.",
+   warn:null},
+
+  {id:"lave-tet",name:"Lave Tèt / Sèvis Tèt",sub:"Initiation de base — lavage de tête",cat:"initiation",
+   lwa:"Lwa mèt tèt de la personne",duree:"3 jours",qui:"Oungan ou Manbo qualifié",urgence:false,
+   kw:["lave tet","lavage tête","sevis tet","initiation","tête","lave","purification","nettoyer","cool head","tête froide","refroidir","hounsi","senp","membre","maison","nom vayan","escorte spirituelle","commencer vodou"],
+   resume:"L'initiation de base dans le vodou haïtien. Fait d'une personne un membre de la maison, nettoie et refroidit la tête, révèle l'escorte spirituelle.",
+   etapes:["Consultation : identification des lwa qui accompagnent la personne",
+     "Bains rituels préparatoires (bain démaré)",
+     "Jour 1 — Imitation : présentation aux ancêtres et lwa du péristyle",
+     "Jour 2 — Lavage de tête : herbes sacrées sélectionnées selon le lwa mèt tèt",
+     "Application sur la tête avec prières et chants spécifiques",
+     "Réception du nom vayan (nom initiatique sacré)",
+     "Jour 3 — Clôture : révélation de l'escorte spirituelle complète",
+     "Apprentissage des soins pour ses lwa personnels",
+     "Élévation au rang d'hounsi senp"],
+   ingredients:["Herbes fraîches selon le lwa mèt tèt","Eau de source","Eau de rivière","Florida Water","Parfum du lwa","Alcool 95°","Rhum blanc","Citrons verts","Bougies des couleurs du lwa","Ason du oungan"],
+   tip:"Dans le vodou, l'âme réside dans la tête. Maintenir une tête froide (équilibrée, calme) est l'objectif spirituel permanent. Une tête chaude repousse les bénédictions.",
+   warn:null},
+
+  {id:"kanzo",name:"Kanzò",sub:"Initiation complète à l'ason",cat:"initiation",
+   lwa:"Lwa mèt tèt + escorte",duree:"Plusieurs semaines",qui:"Oungan asogwe ou Manbo asogwe",urgence:false,
+   kw:["kanzo","kanzò","initiation","ason","feu","djèvo","djèvò","mourir","renaître","asogwe","sou pwen","senp","secret","initié","hounsi","maré paquè","bade gè","montè bila","bila","prêtrise","oungan","manbo","grade"],
+   resume:"L'initiation majeure du vodou haïtien. L'initié meurt symboliquement et ressuscite avec une nouvelle identité spirituelle. Trois degrés : senp, sou pwen, asogwe.",
+   etapes:["Prèt Sèman : serment devant les lwa et ancêtres — contrat spirituel permanent",
+     "Limination : présentation aux ancêtres sur les habitations ancestrales",
+     "Identification du point : divination pour trouver le lwa mèt tèt",
+     "Bade-gè : collecte et pilage des feuilles sacrées + symbolique des manchettes",
+     "Djèvò : entrée dans la retraite sacrée — mort mystique et transmission des savoirs",
+     "Maré Paquè : lier le paquet Simbi (dimension Congo)",
+     "Monté Bila : rituel Congo avec chant 'Tony rele Congo, et a Bila Congo'",
+     "Sortie du djèvò : résurrection avec nom vayan sacré",
+     "Réception de l'ason si asogwe — passage des ténèbres à la lumière"],
+   ingredients:["Feuilles et herbes sacrées (collectées en forêt)","Eau de mer, rivière, source, étang","Alcool, rhum","Florida Water","Bougies des couleurs du lwa","Ason","Vêtements blancs pour le djèvò","Ingrédients secrets du paquet (tradition orale)"],
+   tip:"'Mouri pou resisite' — mourir pour ressusciter. L'initiation crée un lien permanent plus profond que le mariage entre initié et initiateur.",
+   warn:"Les étapes complètes et les secrets du Kanzò ne peuvent être transmis que dans le contexte initiatique. Consulter un oungan ou manbo qualifié."},
+
+  {id:"maryaj",name:"Maryaj Mistik",sub:"Mariage mystique avec un lwa",cat:"initiation",
+   lwa:"Erzulie Freda / Danbala / La Sirène / Ogou / Agwé",duree:"1 journée",qui:"Oungan ou Manbo + témoins",urgence:false,
+   kw:["mariage mystique","maryaj","maryaj mistik","époux","épouse","lwa mari","lwa femme","anneau","bague","alliance","noces","engagement","mariage lwa","bague mystique","union","rêve mariage","jour fidélité"],
+   resume:"Cérémonie par laquelle un vodouisant se marie à un ou plusieurs lwa. Plus commun que le Kanzò. Le lwa accorde protection spéciale en échange de fidélité.",
+   etapes:["Consultation : identification du lwa demandant le mariage (souvent révélé en rêve)",
+     "Accord du lwa obtenu en songe ou par possession",
+     "Trouver parrain ou marraine déjà initié(e) pour superviser",
+     "Préparation : robe ou costume aux couleurs du lwa époux",
+     "Cérémonie complète avec anneaux, gâteaux, témoins",
+     "Bénédiction par le oungan en présence de la communauté",
+     "Signature du contrat mystique (obligations des deux côtés)"],
+   ingredients:["Robe blanche ou aux couleurs du lwa","Anneaux de mariage","Gâteau cérémoniel","Autel du lwa époux","Offrandes spécifiques du lwa","Témoins initiés"],
+   tip:"Le lwa mari/femme partage le lit du servant certains jours de la semaine (jours de fidélité). En échange, protection permanente et présence dans les rêves.",
+   warn:"Ce rêve ne doit jamais être interprété seul. Consulter absolument un oungan ou manbo de confiance."},
+
+  {id:"dessounin",name:"Dessounin",sub:"Libération de l'âme du défunt",cat:"funeraire",
+   lwa:"Gede / Baron Samedi",duree:"Quelques heures après la mort",qui:"Oungan ou Manbo — URGENT",urgence:true,
+   kw:["dessounin","mort","décès","âme","libérer","enterrement","défunt","initié mort","ti bon ange","gwo bon ange","govi","jarre","funéraire","rituels mort","après mort","zombie","empêcher zombie"],
+   resume:"Libération rituelle urgente de l'âme d'un initié après sa mort. Sans dessounin, l'âme peut errer ou être capturée. À effectuer avant l'enterrement.",
+   etapes:["Appeler le oungan ou manbo qui a initié le défunt en urgence",
+     "Réunion de la famille et de la maison spirituelle",
+     "Invocation des lwa gardiens du défunt",
+     "Séparation rituelle du Ti Bon Ange du corps",
+     "Placement du Ti Bon Ange dans un govi (jarre d'argile)",
+     "Le Gwo Bon Ange retourne à l'univers",
+     "Prières pour le voyage de l'âme vers Ginen",
+     "Enterrement sécurisé possible après le dessounin"],
+   ingredients:["Govi (jarre d'argile sacrée)","Ason du oungan","Bougies blanches","Eau bénite","Prières spécifiques à la maison spirituelle"],
+   tip:"Le lwa mèt tèt de l'initié doit être retiré de sa tête avant l'enterrement. Sans cela, le lwa reste piégé avec le corps en décomposition.",
+   warn:"URGENT : À effectuer dans les heures suivant le décès d'un initié. Un initié mort sans dessounin peut devenir un dangereux zombie spirituel."},
+
+  {id:"wete-mo",name:"Wete Mò Anba Dlo",sub:"Récupération de l'âme depuis les eaux",cat:"funeraire",
+   lwa:"Baron Samedi / Gede / Agwé",duree:"Un an et un jour après le décès",qui:"Oungan ou Manbo",urgence:false,
+   kw:["wete mo","wete mò","retirer mort","eau","âme","sous l'eau","an et un jour","govi","jarre","récupérer âme","nan dlo","funéraire","anniversaire mort","un an mort","récupérer défunt"],
+   resume:"Cérémonie effectuée un an et un jour après la mort. Récupère l'âme depuis les eaux de l'abîsse souterrain pour la loger dans un govi sacré.",
+   etapes:["Un an et un jour après le décès — date précise à respecter",
+     "Consécration des govi : enveloppés de blanc, portés sur les têtes des hounsi",
+     "Invocation d'un lwa (tambours, chants, cloche et ason)",
+     "Le lwa guide l'âme du défunt vers le govi",
+     "L'âme parle à travers le govi — messages pour la famille",
+     "La jarre gardée sur l'autel ancestral (généralement un an)",
+     "Après plusieurs années : l'âme rejoint la mémoire collective des ancêtres"],
+   ingredients:["Govi (jarre d'argile)","Voile blanc pour les hounsi","Ason","Tambours","Bougies blanches","Eau bénite"],
+   tip:"Le oungan fonctionne ici comme une sage-femme — il aide à la renaissance de l'âme depuis les eaux, sa troisième naissance.",
+   warn:null},
+
+  {id:"fet-gede",name:"Fèt Gede",sub:"Fête annuelle des morts",cat:"funeraire",
+   lwa:"Baron Samedi / Maman Brigitte / Famille Gede",duree:"1er et 2 novembre",qui:"Communauté entière",urgence:false,
+   kw:["fèt gede","fete gede","fête des morts","morts","cimetière","2 novembre","1er novembre","baron samedi","gede","maman brigitte","rhum piment","noir violet","poudre blanche","lunettes"],
+   resume:"Fête haïtienne nationale célébrée les 1er et 2 novembre dans tous les cimetières. Communion avec les morts, possessions par les Gede.",
+   etapes:["Rassemblement dans les cimetières à travers toute Haïti",
+     "Dépôt d'offrandes aux premières tombes (tombes de Baron et Maman Brigitte)",
+     "Costumes : noir et violet, poudre blanche sur le visage, lunettes noires",
+     "Rhum au piment fort consommé et appliqué sur le corps",
+     "Possessions par les Gede : voix nasale, obscénités sacrées",
+     "Prières pour tous les défunts de la famille",
+     "Dépôt d'aliments préférés des défunts sur leurs tombes",
+     "Danse, chants et célébration de la vie dans la mort"],
+   ingredients:["Rhum au piment (signature de la famille Gede)","Cigares","Bougies noire et violette","Lunettes noires","Aliments préférés des défunts","Poudre blanche pour le visage"],
+   tip:"La célébration de la mort dans le vodou est une célébration de la vie. Les Gede rient et blasphèment parce que la mort leur a tout appris — ils n'ont plus rien à craindre.",
+   warn:null},
+
+  {id:"bain-base",name:"Bain Rituel de Base",sub:"Bain de 7 feuilles — recette fondamentale",cat:"bain",
+   lwa:"Selon le type de bain",duree:"30 min prépa + application",qui:"Tout le monde",urgence:false,
+   kw:["bain","bain rituel","bain vodou","7 feuilles","sept feuilles","purification","nettoyer","spirituel","bain 7","recette bain","herbes","plantes","rituel bain","bain protection","bain chance","bain amour","bain santé"],
+   resume:"Le bain rituel est la pratique la plus accessible du vodou. Principe : 'c'est avec les âmes des plantes qu'on guérit les âmes des humains'.",
+   etapes:["Rassembler 7 types de feuilles fraîches selon l'objectif",
+     "Laver les feuilles à l'eau propre",
+     "Piler les feuilles dans un mortier ou bol blanc",
+     "Ajouter eau de source, eau de rivière, alcool, Florida Water",
+     "Ajouter rhum blanc et jus de citrons verts (7)",
+     "Prier sur le bain : invoquer Bondye Lavi et les lwa concernés",
+     "Laisser reposer 30 min minimum (ou toute la nuit)",
+     "Se baigner normalement d'abord, puis verser le bain de la tête aux pieds",
+     "Laisser sécher sans s'essuyer — laisser les essences agir",
+     "Répéter 3, 7, 9 ou 21 jours selon l'intensité souhaitée"],
+   ingredients:["7 feuilles fraîches (selon objectif)","Eau de source (1 gallon)","Eau de rivière (1 gallon)","Eau de mer (optionnel)","Alcool 95°","Florida Water","Rhum blanc","7 citrons verts","Bol ou cuvette blanche"],
+   tip:"Le chiffre 7 correspond aux 7 âmes de plantes fusionnées. 7 feuilles de types différents créent une force bien plus puissante que 7 feuilles du même type.",
+   warn:null},
+
+  {id:"bain-demare",name:"Bain Démaré",sub:"Dégagement et brise des blocages",cat:"bain",
+   lwa:"Gran Bwa / Ogou",duree:"9 jours consécutifs",qui:"Tout le monde (guidé par oungan si intense)",urgence:false,
+   kw:["démaré","demaré","dégagement","blocage","briser","nettoyer","enlever sort","bain démaré","bain dégagement","blocage spirituel","enlever maléfice","purifier profond","9 jours"],
+   resume:"Bain puissant pour briser les blocages spirituels, dégager les énergies négatives et annuler les effets d'un sort ou maléfice.",
+   etapes:["Préparer un vendredi ou un lundi (jours de dégagement)",
+     "Rassembler 7 feuilles amères à fort pouvoir purificateur",
+     "Ajouter eau de rivière et eau de mer",
+     "Pincée de sel marin, alcool 95°, Florida Water, 7 citrons verts",
+     "Prier en demandant le dégagement à Gran Bwa et à Legba",
+     "Verser de la tête aux pieds en frottant vigoureusement",
+     "Rincer avec de l'eau froide",
+     "Répéter 9 jours consécutifs pour un dégagement profond"],
+   ingredients:["7 feuilles amères purificatrices","Eau de rivière et eau de mer","Sel marin (pincée)","Alcool 95°","Florida Water","7 citrons verts","Rhum blanc"],
+   tip:"Pour les blocages très persistants, le dégagement se fait en 9 jours suivi de 3 jours de bain de protection pour combler l'espace libéré.",
+   warn:null},
+
+  {id:"bain-erzulie",name:"Bain d'Erzulie Freda",sub:"Amour, beauté et abondance",cat:"bain",
+   lwa:"Erzulie Freda",duree:"Jeudi (jour d'Erzulie)",qui:"Tout le monde",urgence:false,
+   kw:["bain amour","bain erzulie","amour","beauté","attirance","charme","séduction","attraction","bain freda","roses","fleurs","parfum","bonheur amoureux","relation","romance","miel","lait"],
+   resume:"Bain de luxe et d'amour dédié à Erzulie Freda. Préparer le jeudi. Attire l'amour, la beauté, la douceur et l'abondance.",
+   etapes:["Préparer le jeudi (jour sacré d'Erzulie Freda)",
+     "Rassembler 7 fleurs roses fraîches et roses blanches",
+     "Ajouter lait entier et miel",
+     "Ajouter parfum Pompeia ou eau de rose",
+     "Ajouter un peu de champagne ou vin blanc",
+     "Feuilles de menthe et huile d'amande douce",
+     "Prier : 'Mètrès Erzulie Freda, accordez-moi amour, beauté et abondance'",
+     "Verser sur la tête en pensant intensément à l'amour désiré",
+     "Laisser sécher en restant dans un état de douceur et gratitude"],
+   ingredients:["7 fleurs roses fraîches","Roses blanches","Lait entier","Miel","Parfum Pompeia ou eau de rose","Champagne ou vin blanc","Feuilles de menthe","Huile d'amande douce"],
+   tip:"Erzulie Freda aime le luxe et la délicatesse. Plus l'offrande est raffinée, plus elle est heureuse de répondre. Accompagner le bain d'une bougie rose allumée.",
+   warn:null},
+
+  {id:"bain-danbala",name:"Bain de Danbala Wedo",sub:"Purification absolue et sagesse",cat:"bain",
+   lwa:"Danbala Wedo",duree:"Jeudi — dans le silence total",qui:"Tout le monde",urgence:false,
+   kw:["bain danbala","purification","blanc","pur","sagesse","sérénité","lait","farine","fleurs blanches","bain blanc","bain pur","nettoyer profond","spirituel"],
+   resume:"Bain de purification absolue dédié à Danbala. Tout doit être blanc et pur. Préparé et appliqué dans le silence total.",
+   etapes:["Préparer uniquement le jeudi",
+     "Utiliser de l'eau pure de source uniquement (PAS d'alcool)",
+     "Ajouter beaucoup de lait entier",
+     "Ajouter farine de riz blanche et fleurs blanches",
+     "Quelques gouttes de lotion Pompeia",
+     "Préparer et appliquer dans un silence complet",
+     "Sécher avec un linge blanc immaculé",
+     "Porter du blanc toute la journée après"],
+   ingredients:["Eau de source pure","Lait entier (beaucoup)","Farine de riz blanche","Fleurs blanches","Lotion Pompeia","Linge blanc immaculé"],
+   tip:"Tout doit être blanc autour de Danbala. Aucun bruit négatif, aucune parole agressive. La propreté absolue est une marque de respect envers le plus ancien des lwa.",
+   warn:null},
+
+  {id:"wanga",name:"Wanga — Charme rituel",sub:"Objet de pouvoir pour un but précis",cat:"protection",
+   lwa:"Selon l'objectif",duree:"Préparation 1 à 3 jours",qui:"Oungan, Manbo ou initié avancé",urgence:false,
+   kw:["wanga","charme","sort","objet rituel","magie","pouvoir","force spirituelle","protection","chance","guérison","travail","objet pouvoir","vodou objet","faire travail","travay","wanga protection","wanga chance"],
+   resume:"Objet rituel actif contenant et projetant une force spirituelle vers un but précis. Technologie spirituelle de la tradition vodou.",
+   etapes:["Consultation pour identifier le lwa et l'objectif",
+     "Choix de la base physique : bouteille, sachet, jarre, poupée",
+     "Collecte des ingrédients liés au lwa invoqué",
+     "Tracé du vèvè du lwa sur ou dans l'objet",
+     "Chargement avec substances de liaison : rhum, miel, sang si nécessaire",
+     "Invocation du lwa lors de la construction",
+     "Activation par chants, prières, possession ou rêve confirmatoire",
+     "Placement sur l'autel, à l'entrée, ou port sur soi"],
+   ingredients:["Base physique (bouteille, sachet, jarre)","Herbes et plantes selon le lwa","Poudres sacrées","Objets naturels (pierres, coquillages, plumes, os)","Parfum rituel du lwa","Tissu de la couleur du lwa","Parchemin avec invocation"],
+   tip:"Un wanga n'est pas efficace sans l'accord du lwa. Le lwa doit être invoqué, nourri et convaincu de résider dans l'objet.",
+   warn:null},
+
+  {id:"paket-kongo",name:"Pakèt Kongo",sub:"Paquet rituel puissant d'origine africaine",cat:"protection",
+   lwa:"Selon l'objectif et le lwa",duree:"1 à 3 jours de préparation",qui:"Oungan, Manbo ou initié avancé",urgence:false,
+   kw:["pakèt kongo","paquet kongo","paquet rituel","protection","puissance","tissu","sequins","plumes","lier","paket","kongo","paquet vodou","bundle","bouquet rituel","Congo"],
+   resume:"L'un des objets rituels les plus puissants du vodou. Paquet tissé de tissu, sequins et plumes contenant des ingrédients sacrés actifs.",
+   etapes:["Consultation préalable : identification du lwa invoqué",
+     "Collecte des ingrédients sur plusieurs jours",
+     "Préparation du tissu de la couleur du lwa",
+     "Incorporation des herbes, poudres et objets sacrés",
+     "Cérémonie de construction en présence du oungan",
+     "Invocation du lwa pour 'entrer' dans le paquet",
+     "Activation : chants, prières, possession",
+     "Décoration finale : sequins, perles, plumes",
+     "Placement sur l'autel ou port"],
+   ingredients:["Tissu de la couleur du lwa","Herbes rituelles liées au lwa","Poudres sacrées","Pierres, coquillages, os, plumes","Parfum rituel","Parchemin avec invocation ou vèvè"],
+   tip:"Le pakèt Kongo vient d'Afrique centrale. Il suit la tradition Kongo de 'lier l'âme' à quelque chose de tangible — une technologie spirituelle millénaire.",
+   warn:null},
+
+  {id:"gad",name:"Gad",sub:"Protection spirituelle corporelle",cat:"protection",
+   lwa:"Ogou / Danbala / Selon le type",duree:"Cérémonie de quelques heures",qui:"Oungan ou Manbo",urgence:false,
+   kw:["gad","garde","protection","corps","défense","spirituelle","protéger corps","gad feu","gad guerre","voyage","protection enfant","protection corporelle","renforcement"],
+   resume:"Protection spirituelle inscrite sur le corps ou accordée à une personne. Peut être donné dès 12 ans (gad dyòk). Renforce contre les attaques spirituelles.",
+   etapes:["Consultation pour identifier le type de gad nécessaire",
+     "Préparation des substances rituelles spécifiques",
+     "Invocation du lwa protecteur (Ogou pour guerre, Danbala pour pureté)",
+     "Application des substances sur le corps (points spécifiques)",
+     "Prières de protection et scellement",
+     "Instructions données à la personne pour entretenir sa protection"],
+   ingredients:["Substances rituelles selon le type de gad (tradition orale)","Herbes de protection","Rhum ou alcool rituel","Bougies appropriées"],
+   tip:"Le gad de feu (Kanzò) est la protection la plus connue : l'initié peut toucher brièvement du feu sans brûler — démonstration de la force du lwa qui le protège.",
+   warn:null},
+
+  {id:"contre-sort",name:"Contre-sort / Dégagement",sub:"Annuler un envoûtement ou un blocage",cat:"protection",
+   lwa:"Ogou / Gran Bwa / Simbi",duree:"9 à 21 jours",qui:"Oungan ou Manbo — urgent",urgence:true,
+   kw:["contre-sort","contresort","envoûtement","dégagement","protection","annuler","défaire","briser sort","maléfice","mauvais oeil","travay","attaque spirituelle","bloquer","retourner","défense"],
+   resume:"Série de rituels pour détecter, neutraliser et renvoyer une attaque spirituelle. Inclut bains, protections et travaux de justice.",
+   etapes:["Consultation divinatoire : identifier la source et le type d'attaque",
+     "Bain de dégagement profond (9 jours de bain démaré)",
+     "Rituel de protection renforcée (pakèt ou wanga de protection)",
+     "Travail de retour avec Ogou : renvoyer le sort à son expéditeur",
+     "Travail avec Simbi pour défaire les nœuds magiques",
+     "Renforcement de l'autel personnel",
+     "Protection du Ti Bon Ange par le oungan",
+     "Suivi et offrandes régulières au lwa protecteur"],
+   ingredients:["Herbes de dégagement (plantes amères)","Florida Water","Sel","Bougies blanches et rouges","Ingrédients pour wanga de protection","Rhum pour Ogou"],
+   tip:"Après un contre-sort réussi, il est essentiel de renforcer sa protection immédiatement — l'espace laissé par le dégagement doit être comblé positivement.",
+   warn:"URGENT : Une attaque spirituelle non traitée s'intensifie avec le temps. Consulter un oungan ou manbo rapidement."},
+
+  {id:"tiraj",name:"Tiraj — Consultation divinatoire",sub:"Lire les messages des lwa et ancêtres",cat:"divination",
+   lwa:"Selon la question",duree:"30 min à 2 heures",qui:"Oungan, Manbo ou initié avancé",urgence:false,
+   kw:["tiraj","consultation","divination","lire","message","voyance","oungan","manbo","conseil","demande","question","cartes","coquillages","possession","conseil spirituel","lire avenir"],
+   resume:"Consultation divinatoire pour recevoir les messages des lwa et ancêtres. Plusieurs méthodes selon la tradition de la maison.",
+   etapes:["Accueil et présentation de la personne au oungan",
+     "Prières d'ouverture pour protéger la consultation",
+     "Invocation du lwa gardien de la personne",
+     "Lecture divinatoire (possession, cartes, coquillages, bougies ou eau)",
+     "Transmission des messages des lwa et ancêtres",
+     "Prescription de travaux, bains ou offrandes si nécessaire",
+     "Fermeture et protection de la consultation"],
+   ingredients:["Ason ou coquillages selon la méthode","Bougies","Rhum pour libation","Eau bénite","Cartes si applicable"],
+   tip:"La possession divinatoire est la forme la plus directe : le lwa parle lui-même à travers le oungan. Les autres méthodes (cartes, coquillages) sont des outils de lecture symbolique.",
+   warn:null},
+
+  {id:"veve",name:"Tracé du Vèvè",sub:"Signature sacrée des lwa tracée au sol",cat:"divination",
+   lwa:"Selon le lwa invoqué",duree:"15 à 30 min",qui:"Oungan, Manbo ou laplas qualifié",urgence:false,
+   kw:["vèvè","veve","symbole","trace","tracer","farine","sol","signature","sacré","invocation","péristyle","préparer cérémonie","dessin rituel","emblème lwa"],
+   resume:"Tracé des symboles sacrés des lwa à la farine de maïs au sol pour attirer leur présence. Chaque lwa a son vèvè unique.",
+   etapes:["Purifier l'espace avec eau parfumée et prières",
+     "Commencer toujours par le vèvè de Legba en premier",
+     "Tracer sans lever la main (continuité du symbole)",
+     "Aller de droite à gauche selon la tradition de la maison",
+     "Maintenir symétrie et précision (une erreur affaiblit l'invocation)",
+     "Minokan : grand vèvè central autour du poteau mitan pour toutes les divinités"],
+   ingredients:["Farine de maïs blanche","Cendre (alternative)","Poudres colorées","Espace autour du poteau mitan"],
+   tip:"Savoir tracer les vèvè est une marque de distinction très appréciée. Dans l'Artibonite, seul le grade de 'serviteur' (plus élevé que oungan) manipule la farine pour obtenir des vèvè.",
+   warn:null},
+
+  {id:"autel",name:"Construction d'un Autel",sub:"Créer un espace sacré pour un lwa",cat:"divination",
+   lwa:"Selon le lwa honoré",duree:"Variable",qui:"Tout vodouisant sincère",urgence:false,
+   kw:["autel","altè","espace sacré","créer autel","dresser autel","lwa","honorer","table","bougie","eau","parfum","image","saint","shrine","altar","vodou altar","saint catholique","dresser"],
+   resume:"Créer un espace dédié à un ou plusieurs lwa. Accessible à tout vodouisant sincère. L'élément essentiel est la sincérité et le respect.",
+   etapes:["Choisir l'espace : table, étagère ou espace permanent dédié",
+     "Recouvrir d'un tissu de la couleur du lwa",
+     "Placer l'image ou le saint catholique associé",
+     "Installer les bougies de la couleur du lwa",
+     "Verre d'eau fraîche (changée régulièrement)",
+     "Parfum ou lotion préféré du lwa",
+     "Nourriture et boisson préférées (changées régulièrement)",
+     "Objets spécifiques du lwa (machette Ogou, bijoux Erzulie...)"],
+   ingredients:["Tissu couleur du lwa","Image du lwa / saint catholique associé","Bougies couleur lwa","Verre d'eau","Parfum du lwa","Aliments et boissons du lwa","Objet symbolique du lwa"],
+  tip:"'Vodou est une spiritualité tolérante parce qu'elle n'exclut rien.' Un autel simple avec sincérité vaut plus qu'un autel élaboré fait sans respect.",
+   warn:null},
+
+  {id:"possession",name:"Possession par un Lwa (Chwal)",sub:"Le lwa monte sur son servant",cat:"public",
+   lwa:"Selon les chants et invocations",duree:"Variable — quelques min à plusieurs heures",qui:"Hounsi ou initié — spontané",urgence:false,
+   kw:["possession","chwal","cheval","monte","lwa monte","transe","posséder","monter","cheval lwa","manifestation","esprit","corps","signe","possession vodou","trance"],
+   resume:"Phénomène central du vodou : le lwa 'monte' sur son servant comme un cavalier sur son cheval. Le servant devient le véhicule du lwa.",
+   etapes:["Invocation du lwa par les chants et le rythme des tambours",
+     "Le lwa commence à attirer le servant (tremblements, changement d'expression)",
+     "Transition : le servant perd conscience de lui-même",
+     "Le lwa prend le contrôle du corps, de la voix, de la gestuelle",
+     "Le lwa est habillé de ses couleurs et nourri de ses aliments",
+     "Consultations, guérisons, messages donnés par le lwa",
+     "Fin de la possession : le lwa repart, le servant reprend conscience",
+     "Soin du servant après la possession (eau, repos)"],
+   ingredients:["Tambours et rythmes appropriés","Chants du lwa","Vêtements et attributs du lwa","Aliments et boissons du lwa","Initiés expérimentés pour encadrer"],
+   tip:"Pendant la possession, le lwa parle, agit, guérit et prédit à travers le corps du servant. Le servant ne garde aucun souvenir de ce qui s'est passé pendant la possession.",
+   warn:"Un débutant en transe doit toujours être encadré par des initiés expérimentés pour éviter les accidents spirituels."},
+
+  {id:"sacrifice",name:"Sacrifice Animal",sub:"Offrande de vie aux lwa",cat:"public",
+   lwa:"Selon le lwa honoré",duree:"Partie de la cérémonie",qui:"Oungan ou Manbo",urgence:false,
+   kw:["sacrifice","animal","coq","cochon","bœuf","sang","offrande","vie","sevis","manger lwa sacrifice","animal sacrifice","sang rituel","volaiye"],
+   resume:"Offrande d'une vie animale aux lwa en signe de gratitude, de supplication ou pour marquer un pacte. Acte de réciprocité sacrée.",
+   etapes:["Identification de l'animal approprié selon le lwa (coq pour la plupart, cochon pour Dantò)",
+     "Purification rituelle de l'animal",
+     "Présentation de l'animal au lwa",
+     "L'animal est tenu au-dessus de l'autel ou du vèvè",
+     "Sacrifice effectué par le oungan avec prières",
+     "Le sang est offert au lwa (sur le vèvè ou l'autel)",
+     "L'animal est préparé rituellement puis cuisiné pour le festin communautaire"],
+   ingredients:["Coq (pour la plupart des lwa)","Cochon sauvage (Ezili Dantò)","Bœuf ou taureau (Bossou, Ogou)","Bougies","Rhum","Prières appropriées"],
+   tip:"Le sacrifice n'est jamais un acte de cruauté — c'est l'offrande la plus haute que l'humain puisse faire : une vie pour une vie. L'animal est traité avec respect et gratitude.",
+   warn:null},
+
+  {id:"rara",name:"Rara",sub:"Procession-cérémonie itinérante",cat:"public",
+   lwa:"Legba / Kalfou / Ogou",duree:"Période du Carême (mercredi des cendres à Pâques)",qui:"Bandes communautaires",urgence:false,
+   kw:["rara","procession","rue","carême","pâques","bande rara","musique rue","défilé","carnaval spirituel","lent","rara haïtien","klewon","vaksin","instruments"],
+   resume:"Forme de procession-cérémonie vodou qui se déplace dans les rues pendant le Carême. Musique, danse, rituels mobiles dans les rues et campagnes.",
+   etapes:["Formation de la bande avec instruments (vaksins, klewon, tambours)",
+     "Processions nocturnes et diurnes dans les rues et campagnes",
+     "Offrandes déposées aux carrefours pour Papa Legba et Kalfou",
+     "Chants rituels créoles appelant les lwa",
+     "Arrêts devant les autels et espaces sacrés du parcours"],
+   ingredients:["Vaksins (instruments à vent en bambou)","Klewon","Tambours","Rhum pour libations aux carrefours","Bougies pour les autels rencontrés"],
+   tip:"Le Rara est une des rares pratiques vodou publiques accessibles à toute la communauté sans initiation. La rue elle-même devient un espace sacré.",
+   warn:null},
+
+  {id:"pelerinage",name:"Pèlerinage aux Lieux Saints",sub:"Saut-d'Eau, Souvenance, Badjo",cat:"public",
+   lwa:"Selon le lieu (Erzulie, Danbala, Dahomey, Nago)",duree:"Variable (1 à plusieurs jours)",qui:"Tout vodouisant",urgence:false,
+   kw:["pèlerinage","saut d'eau","souvenance","badjo","lieu saint","cascade","montagne","gonaïves","ville bonheur","centre haïti","pèlerin","voyage spirituel"],
+   resume:"Voyages aux sites sacrés haïtiens pour chercher les bénédictions des lwa, purifier l'âme ou accomplir une promesse.",
+   etapes:["Préparation spirituelle : bains de purification avant le départ",
+     "Saut-d'Eau (juillet) : bains rituels sous les cascades, possessions par Erzulie et Danbala",
+     "Souvenance (Pâques) : cérémonie en l'honneur des Taureaux Royaux Dahomey",
+     "Badjo (Gonaïves) : tradition Nago, lwa des combattants de l'indépendance",
+     "Dépôt d'offrandes aux pieds des arbres et pierres sacrées",
+     "Réalisation des promesses faites aux lwa"],
+   ingredients:["Offrandes du lwa du lieu (fleurs pour Erzulie, œufs pour Danbala)","Vêtements blancs","Rhum pour libations","Bougies"],
+   tip:"Le Saut-d'Eau rassemble des milliers de pèlerins catholiques ET vodouisants chaque juillet. La cascade est un lieu où les deux traditions se rejoignent.",
+   warn:null},
+
+  {id:"rituel-amour",name:"Rituel d'Amour pour Erzulie",sub:"Attirer l'amour par le rite vodou",cat:"protection",
+   lwa:"Erzulie Freda",duree:"Lune croissante (répéter à chaque lune)",qui:"Tout vodouisant",urgence:false,
+   kw:["amour","attirance","charme amour","erzulie amour","séduction","attirer amour","rituel amour","pomme","basilic","cannelle","vèvè erzulie","bougie rouge","coeur"],
+   resume:"Rituel traditionnel pour attirer l'amour en travaillant avec Erzulie Freda, lwa de l'amour romantique et de la beauté.",
+   etapes:["Choisir la période de lune croissante",
+     "Préparer un autel rose et blanc avec roses fraîches",
+     "Sculpter une belle pomme rouge en forme de cœur avec un couteau propre",
+     "Saupoudrer de basilic et de cannelle (herbes sacrées d'Erzulie)",
+     "Réciter : 'Mètrès Erzulie, Loa de l'Amour, viens ici et fais bon gage pour moi'",
+     "Énoncer clairement le désir d'amour",
+     "Prendre une bouchée de la pomme",
+     "Déposer sur un vèvè d'Erzulie tracé à la cannelle",
+     "Allumer une bougie rouge — laisser brûler jusqu'au bout",
+     "Répéter à chaque lune croissante jusqu'à résultat"],
+   ingredients:["Belle pomme rouge","Basilic frais","Cannelle","Bougie rouge","Farine de maïs ou cannelle pour vèvè","Couteau propre"],
+   tip:"L'amour demandé à Erzulie Freda doit être sincère et respectueux — elle n'aime pas être utilisée pour des désirs superficiels. Lui offrir aussi des fleurs et du parfum.",
+   warn:null},
+
+  {id:"rituel-guerison",name:"Rituel de Guérison",sub:"Traitement d'une maladie d'origine spirituelle",cat:"protection",
+   lwa:"Loko Atissou / Simbi / Danbala",duree:"Variable selon la gravité",qui:"Oungan ou Manbo",urgence:false,
+   kw:["guérison","santé","maladie","soigner","traitement","spirituel","plantes","médicinal","transfert maladie","coq guérison","loko","simbi","herbes médicinal","vodou médecine","medsen fèy"],
+   resume:"Protocole de guérison vodou pour les maladies d'origine spirituelle. Combine diagnostic divinatoire, bains, plantes et rituels de transfert.",
+   etapes:["Consultation divinatoire : identifier la cause spirituelle de la maladie",
+     "Bains de purification pour nettoyer l'aura du malade",
+     "Rituel de transfert : coq (homme) ou poule (femme) mis sur le nom du malade",
+     "Le coq absorbe la maladie par transfert rituel",
+     "L'animal est relâché dans un endroit sauvage (ou sacrifié rituellement)",
+     "Décoction de plantes prescrites par le lwa Loko",
+     "Offrandes régulières au lwa guérisseur pour maintenir la santé",
+     "Suivi : bains d'entretien hebdomadaires"],
+   ingredients:["Coq (si homme) ou poule (si femme)","Herbes médicinales prescrites par Loko","Eau pour décoction","Bougies blanches","Rhum et herbes pour Simbi"],
+   tip:"La médecine vodou traite les causes spirituelles des maladies physiques. Pour les maladies purement physiques, elle complète mais ne remplace pas la médecine conventionnelle.",
+   warn:null},
+
+  {id:"protection-ti-bon-ange",name:"Protection du Ti Bon Ange",sub:"Protéger l'âme personnelle contre les attaques",cat:"protection",
+   lwa:"Lwa mèt tèt / Ogou",duree:"Pratique quotidienne",qui:"Tout vodouisant",urgence:false,
+   kw:["ti bon ange","âme","protéger âme","zombi","zombie","bokor","attaque âme","captif","nanm","protection personnelle","gad","nanm protégé","protection quotidienne"],
+   resume:"Pratiques quotidiennes pour protéger le Ti Bon Ange (âme personnelle) contre les attaques de bokor ou de forces négatives.",
+   etapes:["Porter un sac de gad ou wanga de protection permanent",
+     "Bains de protection réguliers (herbes amères hebdomadaires)",
+     "Prières quotidiennes à son lwa mèt tèt au réveil",
+     "Entretien de l'autel pour maintenir la connexion avec le lwa protecteur",
+     "Éviter les lieux de mauvaise énergie (cimetières la nuit sans préparation)",
+     "Consultation régulière chez le oungan pour vérifier sa protection"],
+   ingredients:["Gad ou wanga de protection","Herbes de protection","Bougie de la couleur du lwa mèt tèt","Eau bénite"],
+   tip:"Un Ti Bon Ange bien protégé est invulnérable à la zombification. La protection régulière vaut mieux que la guérison après une attaque.",
+   warn:null},
+];
+
+const CATS = [
+  {id:"all",label:"Tout"},
+  {id:"public",label:"Cérémonies"},
+  {id:"initiation",label:"Initiation"},
+  {id:"funeraire",label:"Funéraire"},
+  {id:"bain",label:"Bains rituels"},
+  {id:"protection",label:"Protection"},
+  {id:"divination",label:"Divination & objets"},
+];
+
+const BADGE = {
+  public:"b-pub",initiation:"b-ini",funeraire:"b-fun",
+  bain:"b-bain",protection:"b-prot",divination:"b-div"
+};
+const BADGE_LABEL = {
+  public:"Cérémonie",initiation:"Initiation",funeraire:"Funéraire",
+  bain:"Bain rituel",protection:"Protection",divination:"Divination"
+};
+
+const TAGS_POP = ["bain","amour","protection","initiation","mort","guérison","autel","possession","oungan","kanzo","divination","Legba","Erzulie","Ogou","Baron"];
+
+let curCat = "all";
+let selected = null;
+
+function score(r, q) {
+  if (!q.trim()) return 1;
+  const n = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  const qn = n(q);
+  let sc = 0;
+  if (n(r.name).includes(qn)) sc += 10;
+  r.kw.forEach(k => { const kn=n(k); if(kn===qn) sc+=8; else if(kn.includes(qn)) sc+=4; else if(qn.includes(kn)&&kn.length>3) sc+=2; });
+  if (n(r.resume).includes(qn)) sc += 1;
+  if (n(r.lwa).includes(qn)) sc += 3;
+  if (n(r.sub).includes(qn)) sc += 2;
+  return sc;
+}
+
+function buildFilters() {
+  const f = document.getElementById("filters");
+  CATS.forEach(c => {
+    const b = document.createElement("button");
+    b.className = "ftab" + (c.id===curCat?" on":"");
+    b.textContent = c.label;
+    b.onclick = () => { curCat=c.id; document.querySelectorAll(".ftab").forEach(x=>x.classList.remove("on")); b.classList.add("on"); render(); };
+    f.appendChild(b);
+  });
+}
+
+function buildTags() {
+  const t = document.getElementById("tags");
+  TAGS_POP.forEach(tag => {
+    const b = document.createElement("button");
+    b.className = "tag"; b.textContent = tag;
+    b.onclick = () => { document.getElementById("srch").value = tag; render(); };
+    t.appendChild(b);
+  });
+}
+
+function clearSearch() {
+  document.getElementById("srch").value = ""; curCat = "all";
+  document.querySelectorAll(".ftab").forEach((x,i) => x.classList.toggle("on", i===0));
+  selected = null; render();
+}
+
+function render() {
+  if (selected) { renderDetail(); return; }
+  const q = document.getElementById("srch").value;
+  let list = DATA.filter(r => curCat==="all" || r.cat===curCat);
+  if (q.trim()) {
+    list = list.map(r => ({...r, _sc: score(r,q)})).filter(r=>r._sc>0).sort((a,b)=>b._sc-a._sc);
+  }
+  document.getElementById("cnt").textContent = list.length + " rituel" + (list.length>1?"s":"") + " trouvé" + (list.length>1?"s":"");
+  const el = document.getElementById("list");
+  if (!list.length) { el.innerHTML = '<div class="no-res"><i class="ti ti-search" style="font-size:24px;display:block;margin-bottom:8px" aria-hidden="true"></i>Aucun rituel pour "' + q + '".<br><span style="font-size:12px">Essaie : bain, protection, initiation, mort, amour...</span></div>'; return; }
+  el.innerHTML = list.map(r => `
+    <div class="card" id="c-${r.id}" onclick="openDetail('${r.id}')">
+      <div class="card-head">
+        <div class="head-left">
+          <div class="rname">${r.urgence?'<i class="ti ti-alert-triangle" style="font-size:14px;color:#E24B4A;margin-right:4px" aria-hidden="true"></i>':''}${r.name}</div>
+          <div class="rsub">${r.sub}</div>
+        </div>
+        <div class="head-right">
+          <span class="badge ${BADGE[r.cat]}">${BADGE_LABEL[r.cat]}</span>
+          <i class="ti ti-chevron-right chevron" aria-hidden="true"></i>
+        </div>
+      </div>
+    </div>`).join("");
+}
+
+function openDetail(id) {
+  selected = DATA.find(r => r.id === id);
+  renderDetail();
+}
+
+function renderDetail() {
+  const r = selected;
+  document.getElementById("cnt").textContent = "";
+  const el = document.getElementById("list");
+  let html = `<button class="back-btn" onclick="selected=null;render()"><i class="ti ti-arrow-left" style="font-size:16px" aria-hidden="true"></i> Retour</button>
+  <div class="card open" style="cursor:default">
+    <div class="card-head">
+      <div class="head-left">
+        <div class="rname" style="font-size:16px">${r.urgence?'<i class="ti ti-alert-triangle" style="font-size:15px;color:#E24B4A;margin-right:5px" aria-hidden="true"></i>':''}${r.name}</div>
+        <div class="rsub">${r.sub}</div>
+      </div>
+      <span class="badge ${BADGE[r.cat]}">${BADGE_LABEL[r.cat]}</span>
+    </div>
+    <div class="card-body" style="display:block">`;
+
+  if (r.urgence) html += `<div class="section"><div class="warn"><i class="ti ti-alert-triangle" style="font-size:16px;flex-shrink:0" aria-hidden="true"></i><span>Rituel urgent — consulter immédiatement un oungan ou manbo qualifié.</span></div></div>`;
+
+  html += `<div class="section">
+    <div class="meta-row">
+      <div class="meta"><i class="ti ti-user" style="font-size:14px" aria-hidden="true"></i>${r.qui}</div>
+      <div class="meta"><i class="ti ti-clock" style="font-size:14px" aria-hidden="true"></i>${r.duree}</div>
+      <div class="meta"><i class="ti ti-star" style="font-size:14px" aria-hidden="true"></i>${r.lwa}</div>
+    </div>
+    <div class="sbody">${r.resume}</div>
+  </div>`;
+
+  html += `<div class="section"><div class="slabel">Étapes du rituel</div><div class="steps">`;
+  r.etapes.forEach((e,i) => { html += `<div class="step"><span class="step-num">${i+1}.</span><span>${e}</span></div>`; });
+  html += `</div></div>`;
+
+  html += `<div class="section"><div class="slabel">Ingrédients et matériel</div><div class="ingr-grid">`;
+  r.ingredients.forEach(ing => { html += `<div class="ingr"><i class="ti ti-circle-dot" style="font-size:12px;margin-right:5px" aria-hidden="true"></i>${ing}</div>`; });
+  html += `</div></div>`;
+
+  if (r.tip) html += `<div class="section"><div class="tip"><i class="ti ti-bulb" style="font-size:16px;flex-shrink:0" aria-hidden="true"></i><span>${r.tip}</span></div></div>`;
+  if (r.warn) html += `<div class="section"><div class="warn"><i class="ti ti-shield-exclamation" style="font-size:16px;flex-shrink:0" aria-hidden="true"></i><span>${r.warn}</span></div></div>`;
+
+  html += `</div></div>`;
+  el.innerHTML = html;
+}
+
+buildFilters();
+buildTags();
+render();
+</script>

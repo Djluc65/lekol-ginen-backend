@@ -11,17 +11,17 @@ import { execFileSync } from 'node:child_process';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const DATA_PATHS = [
+  resolve(__dirname, '../data/data.jsx'),
   resolve(__dirname, '../../data.jsx'),
-  resolve(__dirname, '../../../data.jsx'),
 ];
-const ENCYCLOPEDIA_PATH = resolve(__dirname, '../../../vodou_haitien_encyclopedie.txt');
-const LWA_FICHES_PATH = resolve(__dirname, '../../../vodou_lwa_fiches_completes.txt');
-const LWA_VEVE_RECITS_SOURCES_PATH = resolve(__dirname, '../../../lwa_veve_recits_sources.html');
-const DREAMS_INTERPRETATIONS_ODT_PATH = resolve(__dirname, '../../../RÊVES — INTERPRÉTATIONS SELON LA TRADITION DU VODOU HAÏTIEN.odt');
-const RITUALS_PRACTICES_DOCX_PATH = resolve(__dirname, '../../../Skills/vodou_rituels_complets.docx');
-const RITUALS_ENGINE_HTML_PATH = resolve(__dirname, '../../../Skills/vodou_rituals_search_engine.html');
-const RECIPES_ENGINE_HTML_PATH = resolve(__dirname, '../../../Skills/recettes_rituels_search.html');
-const SOURCE_APPROCHES_PATH = resolve(__dirname, '../../../Skills/la_source_approches_philosophiques.txt');
+const ENCYCLOPEDIA_PATH = resolve(__dirname, '../data/vodou_haitien_encyclopedie.txt');
+const LWA_FICHES_PATH = resolve(__dirname, '../data/vodou_lwa_fiches_completes.txt');
+const LWA_VEVE_RECITS_SOURCES_PATH = resolve(__dirname, '../data/lwa_veve_recits_sources.html');
+const DREAMS_INTERPRETATIONS_ODT_PATH = resolve(__dirname, '../data/RÊVES — INTERPRÉTATIONS SELON LA TRADITION DU VODOU HAÏTIEN.odt');
+const RITUALS_PRACTICES_DOCX_PATH = resolve(__dirname, '../data/vodou_rituels_complets.docx');
+const RITUALS_ENGINE_HTML_PATH = resolve(__dirname, '../data/vodou_rituals_search_engine.html');
+const RECIPES_ENGINE_HTML_PATH = resolve(__dirname, '../data/recettes_rituels_search.html');
+const SOURCE_APPROCHES_PATH = resolve(__dirname, '../data/la_source_approches_philosophiques.txt');
 
 function resolveFirstExisting(paths) {
   for (const p of paths) {

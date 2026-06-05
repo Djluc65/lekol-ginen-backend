@@ -346,6 +346,8 @@ export default async function searchRoutes(fastify) {
       if (!meilisearch) {
         if (types.includes('lwa')) results.lwa = legacySearchLwa(q, numericLimit);
         if (types.includes('posts')) results.posts = [];
+        // The results for dreams, plants, history, audio, concepts, rituals, recipes, source 
+        // are already populated above. We just need to return the full results object.
         return results;
       }
 

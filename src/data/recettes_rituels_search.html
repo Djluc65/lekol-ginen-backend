@@ -1,0 +1,373 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.w{padding:1rem 0}
+.si{position:relative;margin-bottom:10px}
+.si input{width:100%;padding:9px 36px 9px 36px;font-size:14px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);background:var(--color-background-primary);color:var(--color-text-primary);outline:none}
+.si .ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--color-text-tertiary)}
+.si .clr{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:15px;color:var(--color-text-tertiary)}
+.cats{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.cat{padding:4px 11px;border-radius:20px;font-size:12px;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);transition:all .12s;white-space:nowrap}
+.cat.on{border-color:var(--color-border-primary);background:var(--color-background-primary);color:var(--color-text-primary);font-weight:500}
+.lwas{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.lwa-btn{padding:3px 9px;border-radius:20px;font-size:11px;cursor:pointer;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);color:var(--color-text-secondary);transition:all .12s}
+.lwa-btn:hover,.lwa-btn.on{border-color:var(--color-border-secondary);color:var(--color-text-primary)}
+.kws{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+.kw{padding:3px 10px;border-radius:20px;font-size:11px;cursor:pointer;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.kw:hover{border-color:var(--color-border-secondary);color:var(--color-text-primary)}
+.cnt{font-size:12px;color:var(--color-text-tertiary);margin-bottom:10px}
+.list{display:flex;flex-direction:column;gap:8px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px 14px;cursor:pointer;transition:border-color .12s}
+.card:hover,.card.open{border-color:var(--color-border-secondary)}
+.card-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.card-left{flex:1;min-width:0}
+.card-name{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.card-sub{font-size:12px;color:var(--color-text-secondary);line-height:1.45}
+.card-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.bdg{font-size:10px;padding:2px 7px;border-radius:8px;border:0.5px solid;white-space:nowrap}
+.bdg-bain{background:#E6F1FB;color:#0C447C;border-color:#85B7EB}
+.bdg-wanga{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+.bdg-lamp{background:#FAEEDA;color:#633806;border-color:#EF9F27}
+.bdg-huile{background:#EAF3DE;color:#173404;border-color:#97C459}
+.bdg-tisane{background:#E1F5EE;color:#085041;border-color:#5DCAA5}
+.bdg-offrande{background:#FBEAF0;color:#4B1528;border-color:#ED93B1}
+.bdg-urg{background:#FCEBEB;color:#791F1F;border-color:#E24B4A}
+.lwa-tag{font-size:10px;padding:2px 7px;border-radius:8px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary);white-space:nowrap}
+.body{display:none;margin-top:12px;padding-top:12px;border-top:0.5px solid var(--color-border-tertiary)}
+.card.open .body{display:block}
+.chev{font-size:13px;color:var(--color-text-tertiary);transition:transform .2s}
+.card.open .chev{transform:rotate(180deg)}
+.slbl{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-tertiary);margin-bottom:6px}
+.ingr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:4px;margin-bottom:10px}
+.ingr{font-size:12px;padding:5px 9px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary)}
+.steps{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.step{display:flex;gap:7px;align-items:flex-start;font-size:12.5px;padding:5px 9px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);line-height:1.5;color:var(--color-text-primary)}
+.sn{font-size:10px;font-weight:500;color:var(--color-text-tertiary);flex-shrink:0;min-width:16px;margin-top:1px}
+.tip{background:#E1F5EE;border:0.5px solid #5DCAA5;border-radius:var(--border-radius-md);padding:8px 11px;font-size:12px;color:#085041;line-height:1.6;display:flex;gap:7px;margin-top:6px}
+.warn{background:#FCEBEB;border:0.5px solid #E24B4A;border-radius:var(--border-radius-md);padding:8px 11px;font-size:12px;color:#791F1F;line-height:1.6;display:flex;gap:7px;margin-top:6px}
+.no{text-align:center;padding:2rem 1rem;color:var(--color-text-tertiary);font-size:14px}
+.meta{font-size:11px;color:var(--color-text-secondary);display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.moment-tag{font-size:11px;padding:2px 8px;border-radius:8px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary)}
+.sect-lbl{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-tertiary);margin:8px 0 5px}
+</style>
+
+<div class="w">
+<h2 class="sr-only">Moteur de recherche des recettes vodou — 20 recettes avec filtres par catégorie, Lwa et mots-clés</h2>
+
+<div class="si">
+  <i class="ti ti-search ico" aria-hidden="true"></i>
+  <input id="q" type="text" placeholder="Chercher... bain, amour, protection, Erzulie, démaré, wanga..." oninput="rnd()">
+  <button class="clr" id="clrBtn" style="display:none" onclick="clr()">✕</button>
+</div>
+
+<div class="cats" id="catRow"></div>
+<div id="lwaSec"></div>
+<div id="kwSec"></div>
+<div class="cnt" id="cnt"></div>
+<div class="list" id="list"></div>
+</div>
+
+<script>
+const RECETTES = [
+  {id:"beny-chans",nom:"Beny Chans",sub:"Bain de chance et protection",cat:"bain",
+   lwa:["Legba","Erzulie Freda"],duree:"3, 7 ou 9 jours",moment:"Mardi ou vendredi, soleil de midi",urg:false,
+   kw:["bain","beny","chance","chans","beny chans","protection","legba","erzulie","ouvrir chemin","chance lwa","bain chance","bain protection","florida water","basilic","fleurs rouges","flè wouj","sirop orgeat","citron","fèy basilik","rhum","alcool","eau source","eau rivière","dlo rivye","dlo sous","purifier","ouvrir voie","chance vodou","bony chans","bon chans","attirer chance","attirer protection"],
+   ingr:["Basilic frais — 1-2 poignées","Fleurs rouges fraîches (géraniums, hibiscus)","7 citrons verts","Sirop d'orgeat","Florida Water","Rhum blanc","Eau de source (1 gallon)","Eau de rivière (1 gallon)","Alcool 95°"],
+   etapes:["Rassembler dans une large cuvette blanche","Écraser les feuilles de basilic dans l'eau à la main","Presser légèrement les citrons verts","Ajouter fleurs, sirop d'orgeat, Florida Water, rhum","Chauffer au soleil de midi (ou tiède)","Prier : invoquer Legba pour ouvrir le chemin","Laisser reposer 30 minutes — l'eau doit verdir","Se baigner normalement d'abord","Verser le bain aux 4 directions (Est, Ouest, Sud, Nord)","Frotter les feuilles sur le corps de haut en bas","Ne jamais s'essuyer — laisser sécher à l'air"],
+   tip:"L'eau doit devenir vert-jaune. Les petits morceaux de feuilles qui restent sur la peau NE PAS les enlever.",warn:null},
+
+  {id:"beny-giyon",nom:"Beny Giyon / Beny Vèvenn",sub:"Dégagement profond — brise les blocages",cat:"bain",
+   lwa:["Gran Bwa","Ogou"],duree:"9 jours consécutifs",moment:"Vendredi ou lundi, coucher du soleil",urg:false,
+   kw:["démaré","demaré","giyon","vèvenn","verveine","dégagement","blocage","briser","sort","mauvais oeil","envoutement","bain démaré","purification profonde","9 jours","beny giyon","beny vevenn","nettoyer","chasser","éloigner","malchance","malkans","bain dégagement","gran bwa","ogou","herbes amères","move fèy","sel marin","eau mer","eau rivière","florida water","alcool","citron","rhum","fey","amères","mauvaise energie","bloké","debloké"],
+   ingr:["Verveine fraîche (fèy vèvenn) — principale","7 feuilles amères haïtiennes","Feuilles de mombin","Eau de mer (1 gallon) ou eau de rivière (1 gallon) ou eau du robinet (1 gallon)","Sel marin (21 ou 57 grains de sel)","Alcool 95°","Florida Water","7 ou 21 citrons verts (coupés en 2, garder la tête pour le bain)","21 ou 57 clous de girofle","Lessemator","Kenbe lwen","Rhum blanc"],
+   etapes:["Préparer un vendredi soir ou lundi matin","Piler les feuilles ou les écraser à la main","Mélanger avec les eaux, sel, alcool, Florida Water","Ajouter rhum, presser les citrons verts","Prier : appeler Gran Bwa pour dénouer les nœuds","Laisser reposer 1 heure min (toute la nuit pour cas lourds)","Verser de la tête aux pieds","Frotter VIGOUREUSEMENT — épaules, bras, dos","Jeter l'eau restante à un carrefour","Répéter 9 jours consécutifs"],
+   tip:"Après 9 jours de démaré, enchaîner 3 jours de bain de protection pour combler l'espace libéré.",warn:null},
+
+  {id:"beny-danbala",nom:"Beny Danbala Wedo",sub:"Purification absolue — tout blanc, silence total",cat:"bain",
+   lwa:["Danbala"],duree:"Chaque jeudi pendant 3 semaines",moment:"Jeudi matin — silence absolu",urg:false,
+   kw:["danbala","bain blanc","purification absolue","tout blanc","blanc","pureté","sagesse","sérénité","lait","farine riz","fleurs blanches","lotion pompeia","eau source","beny danbala","jeudi","silence","serpent blanc","clarté","paix intérieure","bain danbala","pou danbala","farin blan","fèy blan","lèt","dlo sous","beny pou danbala","bain purifiant","nettoyage spirituel","bain sagesse"],
+   ingr:["Eau de source pure (jamais d'alcool pour Danbala)","Lait entier (1 litre min)","Farine de riz blanche","Fleurs blanches fraîches (jasmin, gardénia)","Lotion Pompeia (quelques gouttes)","Linge blanc immaculé"],
+   etapes:["Choisir le jeudi matin — jour de Danbala","Préparer dans un espace propre et calme — AUCUN bruit","Dissoudre la farine de riz dans l'eau froide","Ajouter le lait, les fleurs blanches, la lotion Pompeia","Prier en silence : 'Danbala Wedo, serpent blanc, je viens à toi dans la pureté'","Verser sur tout le corps de la tête aux pieds","Sécher avec le linge blanc — jamais la serviette ordinaire","Porter du blanc toute la journée"],
+   tip:"Tout doit être blanc. Aucun alcool. Aucun bruit négatif autour de Danbala.",warn:null},
+
+  {id:"beny-erzulie",nom:"Beny Erzulie Freda",sub:"Amour, beauté et abondance",cat:"bain",
+   lwa:["Erzulie Freda"],duree:"3 à 7 jeudis consécutifs",moment:"Jeudi — état d'esprit doux et reconnaissant",urg:false,
+   kw:["erzulie","bain amour","amour","beauté","beny erzulie","attraction","séduction","roses","rose","fleurs roses","miel","champagne","lait","menthe","huile amande","parfum pompeia","eau rose","erzulie freda","freda","lanmou","bèl","beauté","bain beauté","bain séduction","charme amour","attirer amour","renforcer amour","bain douceur","bain abondance","bain erzulie freda","jeudi bain","bain rose","bain miel","mètrès"],
+   ingr:["7 fleurs roses fraîches (roses, cosmos, géraniums)","Fleurs blanches","Lait entier (500 ml)","Miel (2 cuillères)","Parfum Pompeia ou eau de rose","Champagne ou vin blanc doux","Feuilles de menthe fraîche","Huile d'amande douce"],
+   etapes:["Préparer le jeudi matin avec douceur et joie","Disposer les fleurs dans le bassin avec amour","Ajouter lait, miel, parfum, champagne, huile d'amande","Écraser doucement les feuilles de menthe","Prier : 'Mètrès Erzulie Freda, accordez-moi amour, beauté et abondance'","Verser délicatement en commençant par les cheveux","Laisser les pétales couvrir le corps 10-15 minutes","Laisser sécher sans s'essuyer","Porter des vêtements roses ou blancs après"],
+   tip:"Allumer une bougie rose pendant le bain. Erzulie aime le luxe — plus l'offrande est raffinée, mieux elle répond.",warn:null},
+
+  {id:"beny-ogou",nom:"Beny Ogou Feray",sub:"Force, courage et protection guerrière",cat:"bain",
+   lwa:["Ogou"],duree:"3 jours (avant épreuve) ou 7 jours",moment:"Mardi ou mercredi soir",urg:false,
+   kw:["ogou","bain force","force","courage","protection guerrière","combat","beny ogou","basilic africain","tabac","piment","rhum vieux","alcool","eau rivière","fer","justice","ogou feray","guerrier","soldat","protection corps","renforcement","bain ogou","mardi bain","bain courage","kouri","pwoteksyon","fòs","batay","défense","protection ennemis","bain puissant","bain rouge"],
+   ingr:["Feuilles de basilic africain","3 feuilles de tabac","7 piments forts haïtiens","Rhum vieux fort","Alcool 95°","Florida Water","Eau de rivière (1 gallon)","Limaille de fer (si disponible)"],
+   etapes:["Préparer dans un état de détermination — invoquer Ogou Feray","Piler les feuilles, le piment et le tabac ensemble","Ajouter rhum, alcool, eau de rivière","Prier : 'Ogou Feray, donne-moi ta force et ta protection'","Laisser reposer 30 minutes","Verser sur tout le corps avec énergie","Frotter vigoureusement — ressentir la force d'Ogou","Rincer légèrement à l'eau froide"],
+   tip:"Ne pas craindre le piment sur la peau — c'est le feu d'Ogou qui protège.",warn:null},
+
+  {id:"beny-baron",nom:"Beny Baron Samedi",sub:"Protection extrême contre la mort et les attaques",cat:"bain",
+   lwa:["Baron Samedi"],duree:"3 ou 9 jours",moment:"Samedi ou mardi à minuit ou lever du jour",urg:true,
+   kw:["baron","baron samedi","bain baron","protection mort","contre-sort","neutralisation","rhum piment","tabac","eau cimetière","sel","bougies noires","bougies violettes","minuit","gede","bany baron","mouri","lanmò","protection extreme","bain extreme","bain gede","samedi bain","annuler sort","défaire maléfice","protection vie","zombi","zombie","anti-sort","bain puissant baron"],
+   ingr:["Rhum blanc fort","7 piments haïtiens forts entiers","3 feuilles de tabac","Eau de cimetière (avec respect et prière)","Eau de rivière","Sel (pincée)","Bougies noires et violettes"],
+   etapes:["Préparer la nuit ou à l'aube — heure de Baron","Allumer les bougies noires et violettes","Mélanger tous les ingrédients en priant Baron Samedi","'Bawon, éloigne la mort prématurée, annule ce qui est contre moi'","Laisser les bougies brûler pendant toute la préparation","Verser sur le corps en commençant par la tête","Jeter l'eau restante à un carrefour"],
+   tip:null,warn:"Bain très fort. Ne pas préparer sans raison sérieuse. Consulter un houngan si possible."},
+
+  {id:"beny-agwe",nom:"Beny Agwé",sub:"Prospérité marine, voyages et abondance",cat:"bain",
+   lwa:["Agwé","La Sirène"],duree:"7 jours consécutifs",moment:"Jeudi ou vendredi, lune croissante",urg:false,
+   kw:["agwé","agwe","la sirène","lasirèn","bain mer","eau mer","prosperité","voyage","abondance","champagne","coquillages","algues","fleurs bleues","bain agwé","bain voyage","argent","richesse marine","bain prospérité","mer","lanmè","dlo lanmè","beny agwe","bany agwe","bain bleu","success","réussite","fortune"],
+   ingr:["Eau de mer (1-2 gallons — principale)","Algues marines fraîches (si disponibles)","3 ou 7 coquillages entiers","Champagne ou vin blanc sec","Fleurs bleues et blanches","Florida Water","Poudre de coquillages"],
+   etapes:["Préparer près de l'eau si possible","Placer les coquillages dans le bassin","Ajouter tous les ingrédients","Prier : 'Agwé Aroyo, maître de la mer, ouvre les voies'","Verser en imaginant la mer qui lave tout obstacle","Lancer fleurs et coquillages vers la mer après"],
+   tip:"Si la barque d'offrandes coule rapidement en mer : Agwé a accepté.",warn:null},
+
+  {id:"beny-marassa",nom:"Beny Marassa",sub:"Équilibre, fertilité et double bénédiction",cat:"bain",
+   lwa:["Marassa"],duree:"2 × 7 jours — deux cycles",moment:"Mardi et jeudi — les deux jours des Marassa",urg:false,
+   kw:["marassa","jumeaux","jumelles","équilibre","fertilité","double","deux","pè","bain marassa","bain equilibre","bain fertilité","marassa dosou","dosou dosa","dualité","harmonie couple","couple","bany marassa","deux bassins","deux bougies","deux cycles","bain double","fertilite","grossesse","enfant","deux parfums","double offrande"],
+   ingr:["2 types de fleurs différentes (une pour chaque Marassa)","2 parfums différents (un doux, un sucré)","2 eaux différentes (source + rivière)","2 sucreries dissoutes","2 bougies de couleurs différentes"],
+   etapes:["Préparer deux bassins séparés — un pour chaque Marassa","Prendre les deux bains à la suite dans la même session","Prier en double : remercier les Marassa pour l'équilibre"],
+   tip:"NE JAMAIS préparer ou offrir l'un sans l'autre pour les Marassa.",warn:null},
+
+  {id:"wanga-protection",nom:"Wanga Pwoteksyon Kay",sub:"Protection du foyer — charme permanent",cat:"wanga",
+   lwa:["Ogou","Legba"],duree:"Permanent — renouveler chaque année",moment:"Premier vendredi du mois",urg:false,
+   kw:["wanga","wanga protection","protection maison","kay","foyer","charme","sort protection","bouteille","mapou","ceiba","mombin","basilic","poivre noir","sel","rhum","alcool","florida water","piment","machette","vèvè ogou","parchemin","sort maison","protection domicile","protéger maison","protection famille","wanga kay","pwoteksyon kay","proteje kay","charme foyer","amulette","bouteille protection"],
+   ingr:["1 bouteille en verre verte ou ambrée","Feuilles de mapou (ceiba)","Feuilles de mombin","Feuilles de basilic frais","7 grains de poivre noir","Sel marin","Rhum blanc","Alcool 95°","Florida Water","3 piments forts","Clou rouillé (symbole d'Ogou)","Parchemin avec vèvè d'Ogou"],
+   etapes:["Piler les feuilles de mapou, mombin et basilic","Ajouter grains de poivre, sel, piment fort","Incorporer dans la bouteille avec rhum et alcool","Glisser le parchemin vèvè d'Ogou dans la bouteille","Sceller la bouteille","Prier longuement : invoquer Ogou Feray et Legba","Agiter la bouteille 7 fois en demandant la protection","Placer à l'entrée principale"],
+   tip:"Arroser de rhum blanc chaque vendredi. Renouveler les ingrédients tous les 3 mois.",warn:null},
+
+  {id:"wanga-amour",nom:"Wanga Lanmou",sub:"Attirer et fixer l'amour",cat:"wanga",
+   lwa:["Erzulie Freda"],duree:"Permanent sur l'autel d'Erzulie",moment:"Jeudi soir ou lune croissante",urg:false,
+   kw:["wanga amour","lanmou","attirer amour","fixer amour","wanga erzulie","sachet amour","charme amour","photo","prénom","miel","sucre","cannelle","basilic doux","pétales rose","ruban rose","tissu rose","tissu rouge","7 noeuds","lune croissante","sort amour","sort romantique","séduction","fidélité","wanga lanmou","wanga pou amour","fè ou renmen","rituel amour","faire aimer","amour fidèle","attirer","conquérir"],
+   ingr:["Tissu rose ou rouge (20×20 cm)","Fleurs séchées d'Erzulie (roses, jasmin, lavande)","Photo de la personne aimée ou prénoms sur parchemin","Sucre en poudre","Miel","Parfum Pompeia","Basilic doux, pétales de rose, cannelle","Ruban rose","Bougie rose"],
+   etapes:["Allumer la bougie rose — invoquer Erzulie Freda","Étaler le tissu, déposer fleurs séchées et herbes","Placer la photo ou parchemin avec les prénoms","Saupoudrer de sucre et cannelle en cercles","Verser quelques gouttes de miel et de parfum","Replier le tissu soigneusement","Ligaturer avec le ruban rose — 7 nœuds","À chaque nœud, réciter la demande à Erzulie","Placer sur l'autel d'Erzulie"],
+   tip:"Arroser de quelques gouttes de parfum chaque jeudi. Remplacer si le tissu se détériore.",warn:null},
+
+  {id:"wanga-chans",nom:"Wanga Chans ak Lajan",sub:"Chance, argent et succès professionnel",cat:"wanga",
+   lwa:["Azaka","Erzulie Freda"],duree:"Permanent — renouveler au besoin",moment:"Jeudi ou vendredi matin",urg:false,
+   kw:["wanga chance","wanga argent","lajan","richesse","argent","prosperité","succès","travail","emploi","boulot","tissu vert","pièce de monnaie","basilic","menthe","herbe argent","miel","sucre brun","cannelle","graines tournesol","maïs","clairin","rhum","azaka","wanga lajan","wanga chans","sort chance","sort argent","charme richesse","attirer argent","fortune","portefeuille","argent au travail","promotion","réussite professionnelle"],
+   ingr:["Tissu vert (couleur de l'argent et d'Azaka)","Pièce de monnaie (vieille ou étrangère)","Basilic séché","Menthe fraîche séchée","Herbe à argent","Miel","Sucre brun","Poudre de cannelle","Graines de tournesol ou maïs","Clairin ou rhum blanc"],
+   etapes:["Préparer dans un état de gratitude pour ce qu'on possède déjà","Rassembler herbes, pièce, graines dans le tissu vert","Verser le miel lentement en demandant à la chance de coller","Saupoudrer de sucre brun et cannelle","Ligaturer avec fil vert — 7 nœuds","Prier à Azaka pour la récolte et à Erzulie pour la richesse"],
+   tip:"Placer dans son portefeuille ou son tiroir-caisse. Arroser de clairin chaque premier du mois.",warn:null},
+
+  {id:"paket-kongo",nom:"Pakèt Kongo",sub:"Protection personnelle maximum — objet rituel puissant",cat:"wanga",
+   lwa:["Ogou","Simbi"],duree:"Permanent — à porter ou placer sur l'autel",moment:"Vendredi ou lune décroissante",urg:false,
+   kw:["pakèt kongo","paquet kongo","protection personnelle","objet rituel","tissu rouge","tissu noir","herbes protectrices","verveine","mapou","soufre","sel noir","cendres","pierre rivière","plume noire","coquillage","simbi","ogou","vèvè simbi","fil rouge","fil noir","fil vert","sequins","perles","décoration","construire paket","pakèt vodou","paquet protection","port paket","porter paquet","paquet puissant","protection corps","amulette protection","fétiche protection","kongo protection"],
+   ingr:["Tissu rouge et noir (couleurs d'Ogou)","Herbes : verveine, feuilles de mapou, herbes amères","Soufre, sel noir, cendres","Pierre de rivière, plume noire, coquillage","Parchemin avec vèvè de Simbi","Rhum vieux + Florida Water","Bougies rouges","Fils rouge, noir et vert","Sequins et perles (décoration)"],
+   etapes:["Étaler le tissu rouge et noir sur l'autel","Déposer herbes pilées au centre","Ajouter poudres, objets naturels et parchemin","Arroser de rhum et Florida Water","Replier le tissu en forme de paquet","Ligaturer en alternant rouge, noir, vert — 9 nœuds","Prier à Ogou et Simbi pour activer","Décorer avec sequins et perles"],
+   tip:"Le pakèt Kongo suit la tradition africaine de 'lier l'âme à quelque chose de tangible' — technologie millénaire.",warn:null},
+
+  {id:"lamp-chans",nom:"Lamp Chans",sub:"Lampe de chance et d'ouverture",cat:"lampe",
+   lwa:["Legba","Erzulie Freda"],duree:"7 à 21 jours (allumer quotidiennement)",moment:"Mardi ou jeudi, au lever du soleil",urg:false,
+   kw:["lampe chance","lamp chans","bougie chance","lumière","ouverture","chance","opportunité","huile olive","bougie jaune","bougie orange","herbes chance","basilic séché","menthe sèche","cannelle","miel","florida water","pétales rose jaune","parchemin","voeu","allumer bougie","lamp","lanp","lanp chans","rituel lumière","lampe rituelle","7 jours bougie","21 jours bougie","travail lumière","bougie vodou","lampe vodou"],
+   ingr:["Huile d'olive vierge (base)","Bougie jaune ou orange (couleurs de Legba)","Basilic séché, menthe sèche, cannelle","Miel (une cuillère)","Quelques gouttes de Florida Water","Pétales de rose jaune séchés","Parchemin avec le vœu écrit 9 fois"],
+   etapes:["Verser l'huile d'olive dans un récipient résistant à la chaleur","Ajouter miel, herbes et pétales","Glisser le parchemin sous le récipient","Placer la bougie dans l'huile ou à côté","Prier sur la lampe avant de l'allumer","Allumer chaque matin pendant 7 jours min","Ne jamais souffler — éteindre avec les doigts ou éteignoir"],
+   tip:"Si la flamme monte fort : Legba entend. Si la flamme vacille sans raison : écouter le message des lwa.",warn:null},
+
+  {id:"lamp-baron",nom:"Lamp Bawon Samedi",sub:"Contre-mort et protection extrême",cat:"lampe",
+   lwa:["Baron Samedi"],duree:"7 ou 9 jours",moment:"Samedi soir ou à minuit",urg:true,
+   kw:["lampe baron","lamp bawon","bougie noire","bougie violette","protection mort","neutralisation","huile ricin","lwil maskriti","rhum piment","cigare","tabac séché","piment séché","poudre cimetière","parchemin","lanp bawon","bawon samedi","gede","lanp lanmo","protection extrême","bougie noire vodou","bougie violette vodou","mort","neutraliser ennemi","contre-mort","lampe gede","bawon lanp","contre mort vodou"],
+   ingr:["Huile de ricin (lwil maskriti — huile sacrée haïtienne)","Bougie noire et bougie violette","Rhum au piment fort","Cigare allumé (posé à côté)","Tabac séché, piment séché","Terre de cimetière (avec respect)","Parchemin avec la demande"],
+   etapes:["Allumer les deux bougies (noire et violette) ensemble","Verser l'huile de ricin avec les herbes","Arroser de rhum au piment (ne pas allumer directement)","Poser le cigare allumé à côté — nourriture de Baron","Prier : 'Bawon Samedi, éloigne la mort prématurée...'","Laisser brûler jusqu'à extinction naturelle"],
+   tip:null,warn:"Très puissant. À utiliser uniquement en cas de besoin sérieux."},
+
+  {id:"lamp-erzulie",nom:"Lamp Erzulie Freda",sub:"Amour, beauté et réconciliation",cat:"lampe",
+   lwa:["Erzulie Freda"],duree:"Tous les jeudis pendant 3 semaines",moment:"Jeudi soir, coucher du soleil",urg:false,
+   kw:["lampe erzulie","lamp erzulie","bougie rose","bougie blanche","huile noix de coco","huile amande","pétales rose","parfum pompeia","miel","ruban rose","photo","prénom","lanp erzulie","lanp amour","bougie amour","rituel amour lumière","lumière amour","jeudi bougie","allumer erzulie","invoquer erzulie","amour retour","réconciliation amour","retour ex","attirer ex","bougie romantique"],
+   ingr:["Huile de noix de coco ou d'amande douce","Bougies roses et blanches","Pétales de rose séchés","Quelques gouttes de parfum Pompeia","Miel","Ruban rose autour du récipient","Photo ou prénoms écrits"],
+   etapes:["Faire fondre un peu de miel dans l'huile tiède","Ajouter pétales de rose et parfum","Placer la photo ou parchemin sous la lampe","Décorer le récipient avec le ruban rose","Allumer en récitant la prière à Erzulie Freda","Renouveler chaque jeudi"],
+   tip:"L'huile doit sentir délicieusement — Erzulie est sensible aux odeurs raffinées.",warn:null},
+
+  {id:"lwil-pwoteksyon",nom:"Lwil Pwoteksyon",sub:"Huile de protection totale — oindre corps et seuils",cat:"huile",
+   lwa:["Ogou","Danbala"],duree:"Application quotidienne",moment:"Chaque matin avant de sortir",urg:false,
+   kw:["huile protection","lwil pwoteksyon","huile rituelle","oindre","onction","huile ricin","lwil maskriti","romarin","girofle","herbes protection","verveine","basilic","limaille fer","florida water","poignets","nuque","chevilles","seuil porte","bougie protection","huile vodou","lwil","huile corporelle","baume protection","huile gad","protection aura","huile matin","oindre matin","corps protégé","protection journée"],
+   ingr:["Huile de ricin haïtienne (lwil maskriti) — base","Huile essentielle de romarin","Huile essentielle de girofle","Verveine + basilic + romarin séchés et broyés","Limaille de fer (symbole d'Ogou)","Florida Water"],
+   etapes:["Mélanger tous les ingrédients dans un petit flacon","Prier sur le mélange pendant 7 minutes","Oindre les poignets, la nuque et les chevilles chaque matin","Oindre les bougies de protection avant de les allumer","Appliquer sur les seuils de porte pour protéger l'entrée"],
+   tip:"Porter sur soi dans une petite fiole = protection portable permanente.",warn:null},
+
+  {id:"lwil-erzulie",nom:"Lwil Erzulie — Attirance",sub:"Huile d'amour et d'attraction personnelle",cat:"huile",
+   lwa:["Erzulie Freda"],duree:"Chaque jeudi matin",moment:"Avant une rencontre ou chaque matin",urg:false,
+   kw:["huile amour","lwil erzulie","huile attirance","huile attraction","huile séduction","huile amande","rose","jasmin","pompeia","miel","oindre coeur","oindre front","charme personnel","magnétisme","huile romantique","huile freda","lwil lanmou","attirer personnes","être séduisant","séduire","séduction vodou","amour vodou","sortilège amour doux","attraction amour","huile jeudi","charme doux"],
+   ingr:["Huile d'amande douce (base)","3 gouttes d'huile essentielle de rose","3 gouttes d'huile essentielle de jasmin","Pétales de rose séchés broyés","Quelques gouttes de parfum Pompeia","Miel (demi-cuillère)"],
+   etapes:["Mélanger dans un petit flacon","Laisser macérer 24h avant la première utilisation","Oindre le cœur, les poignets et le front chaque jeudi","Oindre les bougies roses lors des rituels d'amour","Appliquer sur le parchemin du wanga d'amour"],
+   tip:"Quelques gouttes dans le creux du poignet = parfum et charme toute la journée.",warn:null},
+
+  {id:"te-pwoteksyon",nom:"Tè Pwoteksyon",sub:"Tisane de renforcement et protection interne",cat:"tisane",
+   lwa:["Loko"],duree:"1 tasse le matin pendant 9 jours",moment:"Le matin à jeun",urg:false,
+   kw:["tisane","tè","thé","infusion","tisane protection","verveine","menthe","citronnelle","bwa citron","zeste citron","miel","eau source","herbes boire","boire rituel","tisane vodou","boire pour se protéger","protection interne","renforcement","immunité spirituelle","loko","doktè fèy","médecine feuilles","tè pwoteksyon","décoction","remède","remèd","tisane haïtienne","boire chaque matin","fortifier","se renforcer"],
+   ingr:["Feuilles de verveine fraîche","Feuilles de menthe fraîche","Citronnelle haïtienne (bwa citron)","Zeste de citron vert","Miel","Eau de source"],
+   etapes:["Faire bouillir l'eau de source","Éteindre le feu et infuser les feuilles 10 minutes","Couvrir pendant l'infusion — garder les vertus","Filtrer, ajouter le miel","Prier avant de boire : remercier Loko pour les plantes","Boire à jeun, chaque matin"],
+   tip:"Couvrir pendant l'infusion pour ne pas laisser les vertus s'évaporer avec la vapeur.",warn:null},
+
+  {id:"te-danbala",nom:"Tè Danbala",sub:"Tisane de clarté mentale, sagesse et intuition",cat:"tisane",
+   lwa:["Danbala"],duree:"7 jours consécutifs le matin",moment:"Jeudi matin — en silence",urg:false,
+   kw:["tisane danbala","tisane blanche","jasmin","camomille","lait","sucre blanc","eau source","clarté","sagesse","intuition","paix","sérénité","méditation","tè danbala","tisane sagesse","tisane paix","tisane intuition","connexion spirituelle","boire silence","tisane blanche","tisane vodou blanc","réflexion","calme mental","tisane de réflexion"],
+   ingr:["Fleurs de jasmin blanches séchées","Fleurs de camomille","Lait entier","Sucre blanc (jamais de brun pour Danbala)","Eau de source uniquement"],
+   etapes:["Infuser jasmin et camomille dans l'eau de source chaude","Ajouter le lait chaud au moment de servir","Sucrer avec le sucre blanc","Boire en silence total — pas de télévision, pas de musique","Rester 5 minutes en méditation après avoir bu"],
+   tip:"Tout doit être blanc autour de Danbala. Aucune agitation pendant la préparation.",warn:null},
+
+  {id:"kleren-remèd",nom:"Klèren Remèd",sub:"Macération de clairin aux herbes — remède ancestral",cat:"tisane",
+   lwa:["Gran Bwa","Ogou"],duree:"Macération 7 jours · 1 petit verre par semaine",moment:"Vendredi soir — lune décroissante",urg:false,
+   kw:["klèren","clairin","kleren","macération","alcool de canne","rhum haïtien","herbes klèren","kleren remèd","verveine","mapou","gingembre","piment","ail","sel","macérer","laisser reposer","remède ancestral","remèd kleren","remèd","médecine haïtienne","remède plantes","alcool herbes","teinture","tradition haïtienne","gran bwa","ogou","klèren remèd","boire clairin","fortifiant","remède vodou","alcool médicinal"],
+   ingr:["Klèren (clairin haïtien) ou rhum blanc fort — 1 bouteille","Feuilles de verveine fraîche","Feuilles de mapou (ceiba)","Racine de gingembre pilée","5 piments forts haïtiens","3 gousses d'ail","Sel (1 pincée)"],
+   etapes:["Mettre toutes les herbes et racines dans la bouteille de klèren","Fermer hermétiquement","Laisser macérer 7 jours au soleil (ouverture/chance) OU à l'ombre (protection)","Agiter chaque matin en priant","Filtrer après 7 jours","Prendre 1 petit verre une fois par semaine"],
+   tip:"Soleil = ouverture et chance. Ombre = protection et défense. Choisir selon le besoin.",warn:"Modération absolue. Réservé aux adultes. Ne pas ingérer si état de santé contre-indique l'alcool."}
+];
+
+const CATS = [
+  {id:"all",   label:"Tout"},
+  {id:"bain",  label:"Bains",   bdg:"bdg-bain"},
+  {id:"wanga", label:"Wanga",   bdg:"bdg-wanga"},
+  {id:"lampe", label:"Lampes",  bdg:"bdg-lamp"},
+  {id:"huile", label:"Huiles",  bdg:"bdg-huile"},
+  {id:"tisane",label:"Tisanes", bdg:"bdg-tisane"},
+];
+
+const LWA_LIST = ["Legba","Erzulie Freda","Danbala","Ogou","Baron Samedi","Agwé","La Sirène","Marassa","Gran Bwa","Azaka","Simbi","Loko"];
+
+const KW_TAGS = [
+  "amour","protection","chance","dégagement","mort","purification","sagesse",
+  "argent","voyage","force","beauté","fertilité","guérison","maison","sort"
+];
+
+const CAT_BDG = {bain:"bdg-bain",wanga:"bdg-wanga",lampe:"bdg-lamp",huile:"bdg-huile",tisane:"bdg-tisane"};
+const CAT_LBL = {bain:"Bain",wanga:"Wanga",lampe:"Lampe",huile:"Huile",tisane:"Tisane"};
+
+let curCat = "all", curLwa = "", curKw = "";
+
+function norm(s){ return (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""); }
+
+function score(r, q){
+  if(!q.trim()) return 1;
+  const qn = norm(q);
+  let sc = 0;
+  if(norm(r.nom).includes(qn)) sc += 12;
+  if(norm(r.sub).includes(qn)) sc += 5;
+  r.lwa.forEach(l => { if(norm(l).includes(qn)) sc += 8; });
+  r.kw.forEach(k => {
+    const kn = norm(k);
+    if(kn === qn) sc += 10;
+    else if(kn.includes(qn)) sc += 5;
+    else if(qn.includes(kn) && kn.length > 3) sc += 2;
+  });
+  return sc;
+}
+
+function getResults(){
+  const q = document.getElementById("q").value;
+  let list = RECETTES;
+  if(curCat !== "all") list = list.filter(r => r.cat === curCat);
+  if(curLwa) list = list.filter(r => r.lwa.map(norm).includes(norm(curLwa)));
+  if(curKw){
+    const kn = norm(curKw);
+    list = list.filter(r => r.kw.some(k => norm(k).includes(kn)));
+  }
+  if(q.trim()){
+    list = list.map(r=>({...r,_sc:score(r,q)})).filter(r=>r._sc>0).sort((a,b)=>b._sc-a._sc);
+  }
+  return list;
+}
+
+function buildCats(){
+  const el = document.getElementById("catRow");
+  CATS.forEach(c => {
+    const b = document.createElement("button");
+    b.className = "cat" + (c.id===curCat?" on":"");
+    b.textContent = c.label;
+    b.onclick = () => {
+      curCat = c.id;
+      document.querySelectorAll(".cat").forEach((x,i)=>x.classList.toggle("on",CATS[i].id===c.id));
+      rnd();
+    };
+    el.appendChild(b);
+  });
+}
+
+function buildLwa(){
+  const el = document.getElementById("lwaSec");
+  el.innerHTML = '<div class="sect-lbl">Filtrer par lwa</div><div class="lwas" id="lwaRow"></div>';
+  const row = document.getElementById("lwaRow");
+  LWA_LIST.forEach(l => {
+    const b = document.createElement("button");
+    b.className = "lwa-btn" + (curLwa===l?" on":"");
+    b.textContent = l;
+    b.onclick = () => { curLwa = curLwa===l?"":l; buildLwa(); rnd(); };
+    row.appendChild(b);
+  });
+}
+
+function buildKw(){
+  const el = document.getElementById("kwSec");
+  el.innerHTML = '<div class="sect-lbl">Mots-clés rapides</div><div class="kws" id="kwRow"></div>';
+  const row = document.getElementById("kwRow");
+  KW_TAGS.forEach(k => {
+    const b = document.createElement("button");
+    b.className = "kw" + (curKw===k?" on":"");
+    b.textContent = k;
+    b.style.fontWeight = curKw===k?"500":"400";
+    b.onclick = () => {
+      curKw = curKw===k?"":k;
+      if(!curKw) document.getElementById("q").value="";
+      else document.getElementById("q").value=k;
+      buildKw(); rnd();
+    };
+    row.appendChild(b);
+  });
+}
+
+function rnd(){
+  const q = document.getElementById("q").value;
+  document.getElementById("clrBtn").style.display = q?"inline":"none";
+  const res = getResults();
+  document.getElementById("cnt").textContent = res.length+" recette"+(res.length>1?"s":"")+" trouvée"+(res.length>1?"s":"");
+  const el = document.getElementById("list");
+  if(!res.length){
+    el.innerHTML = '<div class="no"><i class="ti ti-search" style="font-size:22px;display:block;margin-bottom:8px" aria-hidden="true"></i>Aucune recette trouvée.<br><span style="font-size:12px">Essaie : bain, amour, protection, wanga, lampe...</span></div>';
+    return;
+  }
+  el.innerHTML = res.map(r => {
+    const bdgCls = CAT_BDG[r.cat]||"bdg-bain";
+    const catLbl = CAT_LBL[r.cat]||r.cat;
+    const lwaHtml = r.lwa.map(l=>`<span class="lwa-tag">${l}</span>`).join("");
+    return `<div class="card" id="c-${r.id}" onclick="tog('${r.id}')">
+      <div class="card-h">
+        <div class="card-left">
+          <div class="card-name">${r.urg?'<i class="ti ti-alert-triangle" style="font-size:13px;color:#E24B4A;margin-right:4px" aria-hidden="true"></i>':''}${r.nom}</div>
+          <div class="card-sub">${r.sub}</div>
+        </div>
+        <div class="card-right">
+          <span class="bdg ${bdgCls}">${catLbl}</span>
+          ${r.urg?'<span class="bdg bdg-urg">Urgent</span>':''}
+          <i class="ti ti-chevron-down chev" aria-hidden="true"></i>
+        </div>
+      </div>
+      <div class="body">
+        <div class="meta">
+          <span><i class="ti ti-star" style="font-size:13px;margin-right:3px" aria-hidden="true"></i>${lwaHtml}</span>
+          <span><i class="ti ti-clock" style="font-size:13px;margin-right:3px" aria-hidden="true"></i>${r.duree}</span>
+          <span class="moment-tag"><i class="ti ti-sun" style="font-size:12px;margin-right:3px" aria-hidden="true"></i>${r.moment}</span>
+        </div>
+        <div class="slbl">Ingrédients</div>
+        <div class="ingr-grid">${r.ingr.map(i=>`<div class="ingr">${i}</div>`).join("")}</div>
+        <div class="slbl">Préparation</div>
+        <div class="steps">${r.etapes.map((e,i)=>`<div class="step"><span class="sn">${i+1}.</span><span>${e}</span></div>`).join("")}</div>
+        ${r.tip?`<div class="tip"><i class="ti ti-bulb" style="font-size:15px;flex-shrink:0" aria-hidden="true"></i><span>${r.tip}</span></div>`:''}
+        ${r.warn?`<div class="warn"><i class="ti ti-shield-exclamation" style="font-size:15px;flex-shrink:0" aria-hidden="true"></i><span>${r.warn}</span></div>`:''}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function tog(id){
+  document.getElementById("c-"+id)?.classList.toggle("open");
+}
+
+function clr(){
+  document.getElementById("q").value="";
+  curKw="";
+  buildKw();
+  rnd();
+}
+
+buildCats();
+buildLwa();
+buildKw();
+rnd();
+</script>

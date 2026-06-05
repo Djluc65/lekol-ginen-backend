@@ -1,0 +1,428 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.wrap{padding:1rem 0}
+.top-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;align-items:center}
+.top-bar input{flex:1;min-width:140px;padding:8px 12px;font-size:13px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);background:var(--color-background-primary);color:var(--color-text-primary)}
+.top-bar input:focus{outline:none;border-color:var(--color-border-primary)}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1rem}
+.tab{padding:4px 11px;border-radius:20px;font-size:12px;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);transition:all .15s}
+.tab.on,.tab:hover{background:var(--color-background-primary);color:var(--color-text-primary);border-color:var(--color-border-primary)}
+.cnt{font-size:12px;color:var(--color-text-tertiary);margin-bottom:10px}
+.list{display:flex;flex-direction:column;gap:10px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;cursor:pointer;transition:border-color .15s}
+.card:hover,.card.open{border-color:var(--color-border-secondary)}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;padding:13px 15px;gap:10px}
+.head-left{flex:1;min-width:0}
+.lname{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.head-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.nat{font-size:11px;padding:2px 8px;border-radius:10px;border:0.5px solid;white-space:nowrap}
+.nat-Rada{background:#E1F5EE;color:#085041;border-color:#5DCAA5}
+.nat-Petro{background:#FCEBEB;color:#791F1F;border-color:#E24B4A}
+.nat-Gede{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+.nat-Nago{background:#FAEEDA;color:#412402;border-color:#EF9F27}
+.nat-Kongo{background:#EAF3DE;color:#173404;border-color:#97C459}
+.nat-Ibo{background:#E6F1FB;color:#042C53;border-color:#85B7EB}
+.nat-Erzulie{background:#FBEAF0;color:#4B1528;border-color:#ED93B1}
+.chev{font-size:14px;color:var(--color-text-tertiary);transition:transform .2s;flex-shrink:0}
+.card.open .chev{transform:rotate(180deg)}
+.card-body{display:none;border-top:0.5px solid var(--color-border-tertiary);padding:14px 15px;background:var(--color-background-secondary)}
+.card.open .card-body{display:block}
+.swatches{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap}
+.sw{width:18px;height:18px;border-radius:3px;border:0.5px solid rgba(0,0,0,0.1);flex-shrink:0}
+.section{margin-bottom:12px}
+.slabel{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-tertiary);margin-bottom:5px}
+.sbody{font-size:13px;color:var(--color-text-primary);line-height:1.65}
+.veve-box{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px;font-size:13px;color:var(--color-text-primary);line-height:1.6}
+.quote{border-left:2px solid var(--color-border-secondary);padding:8px 12px;margin-top:8px;background:var(--color-background-primary);border-radius:0 var(--border-radius-md) var(--border-radius-md) 0}
+.qt{font-size:12.5px;font-style:italic;color:var(--color-text-secondary);line-height:1.6}
+.qs{font-size:11px;color:var(--color-text-tertiary);margin-top:3px}
+.sources{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.src{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary)}
+.no-res{text-align:center;padding:2rem;color:var(--color-text-tertiary);font-size:14px}
+</style>
+
+<div class="wrap">
+<h2 class="sr-only">Vèvè, récits et sources des lwa du vodou haïtien — encyclopédie interactive</h2>
+<div class="top-bar">
+  <input type="text" id="srch" placeholder="Chercher un lwa, un symbole, un récit..." oninput="render()">
+</div>
+<div class="tabs" id="tabs"></div>
+<div class="cnt" id="cnt"></div>
+<div class="list" id="list"></div>
+</div>
+
+<script>
+const DATA = [
+  {
+    name:"Papa Legba",nat:"Rada",
+    col:["#F5D76E","#E74C3C","#F5F5F5"],
+    veve:"Croix à deux axes perpendiculaires symbolisant le carrefour. Une canne de vieillard au centre. Parfois enrichie de clés entrelacées. C'est le premier vèvè tracé dans toute cérémonie, près du poteau mitan — son tracé ouvre littéralement le passage pour tous les autres lwa.",
+    recit:"Legba est le premier et le dernier. Sans lui, aucune prière n'atteint le monde des esprits. Alfred Métraux rapporte qu'avant chaque cérémonie, le houngan frappe trois fois le sol avec son bâton et invoque : « Papa Legba, ouvre la barrière pour moi. » Maya Deren décrit la possession par Legba : le corps se courbe, la démarche devient celle d'un vieillard, la voix tremble — l'esprit du vieux gardien prend le serviteur.",
+    sources:["Métraux, Le vaudou haïtien","Deren, Divine Horsemen","Britannica – Vèvè"]
+  },
+  {
+    name:"Damballah Wedo",nat:"Rada",
+    col:["#F5F5F5","#C0C0C0"],
+    veve:"Deux serpents entrelacés — parfois un seul python ondulant. Tracé en farine blanche pure sur fond de cendre blanche. Simple, épuré, immaculé. Il est le vèvè de la pureté absolue. Souvent dessiné avec un œuf au centre. Ses spirales rappellent les 7 000 anneaux avec lesquels, dit-on, il a formé la Terre.",
+    recit:"Métraux écrit que Danbala est l'un des lwa les plus anciens et les plus révérés. Lors de sa possession, le serviteur se déplace en rampant, siffle, refuse toute nourriture sauf l'œuf blanc. Maya Deren note que Danbala ne parle pas — il communique par signes et silences. Son autel doit être d'une propreté parfaite : la moindre souillure l'offense.",
+    sources:["Métraux, Le vaudou haïtien","Deren, Divine Horsemen","Britannica – Vèvè"]
+  },
+  {
+    name:"Ayida Wedo",nat:"Rada",
+    col:["#F5F5F5","#C0C0C0","#7FDBFF","#7BEA87","#F7DC6F"],
+    veve:"Arc-en-ciel et serpent iridescent. Souvent représentée comme le pendant féminin de Danbala : deux serpents enlacés sur le poteau mitan du péristyle. Ses couleurs dans le vèvè sont toutes les couleurs de l'arc-en-ciel, symbolisant l'harmonie de toute création.",
+    recit:"Métraux décrit Ayida et Danbala comme l'union cosmique primordiale. Ensemble ils enseignèrent à l'humanité le lien entre sang et vie. Ayida est rare à chevaucher ses serviteurs — sa présence est subtile, ressentie plus que vue. Elle est souvent représentée sur le poteau mitan comme soutien du ciel.",
+    sources:["Métraux, Le vaudou haïtien","Britannica – Lwa","Visit Haiti"]
+  },
+  {
+    name:"Ayizan Velekete",nat:"Rada",
+    col:["#C0C0C0","#2E86AB","#F5F5F5"],
+    veve:"Fronde de palmier royal frangée — symbole de liberté et d'initiation. Son vèvè est élaboré autour de la feuille de palmier entourée de croix ou d'étoiles. Tracé au sol avec de la farine blanche, il symbolise la purification de l'espace avant l'initiation.",
+    recit:"Ayizan est l'une des lwa les plus anciennes. Métraux souligne qu'elle est servie avant toute cérémonie d'initiation. Maya Deren note qu'Ayizan ne chevauche ses serviteurs que rarement, et toujours après son époux Loko. Son image est celle d'une vieille femme sage marchant avec sa canne, gardienne du commerce et des routes.",
+    sources:["Métraux, Le vaudou haïtien","Deren, Divine Horsemen","Britannica – Ayizan"]
+  },
+  {
+    name:"Loko Atisou",nat:"Rada",
+    col:["#F5F5F5","#27AE60","#8B4513"],
+    veve:"Serpent enroulé autour d'un axe vertical (canne ou arbre). Croix et étoiles symbolisant son rang et sa lignée. Les clés dans certaines versions de son vèvè signifient qu'il déverrouille les mystères de l'initiation. Tracé lors des cérémonies de Kanzò pour sanctionner la remise de l'ason.",
+    recit:"Loko est le premier houngan mythique. Métraux écrit qu'il est le gardien des hounfo (temples vodou) et le transmetteur de l'autorité sacerdotale. Le chant populaire haïtien dit : « Papa Loko ou se van, pouse n ale nou se papiyon » — Papa Loko, tu es le vent qui nous pousse, et nous devenons des papillons.",
+    sources:["Métraux, Le vaudou haïtien","Deren, Divine Horsemen","Daily Ifá – Vèvè"]
+  },
+  {
+    name:"Marasa Dosou Dosa",nat:"Rada",
+    col:["#2E86AB","#FFB6C1","#E74C3C","#F5F5F5"],
+    veve:"Deux figures identiques liées ensemble — miroir parfait. Souvent deux cœurs ou deux visages reliés par une corde ou un fil. Dans certaines traditions, le vèvè est tracé en double couleur. Les jumeaux symbolisent la dualité du bien et du mal, la prédiction et le contrôle du temps.",
+    recit:"Métraux note que les Marasa sont redoutés pour leurs pouvoirs magiques. Les servir sans respecter la parité est dangereux — oublier l'un provoque leur colère. Deren observe que lors des fêtes Marasa, deux enfants ou deux adultes jouent les jumeaux divins, nourris avec une scrupuleuse symétrie. Ils sont servis juste après Legba.",
+    sources:["Métraux, Le vaudou haïtien","Deren, Divine Horsemen","Britannica – Vèvè"]
+  },
+  {
+    name:"Agwe Tawoyo",nat:"Rada",
+    col:["#2E86AB","#F5F5F5","#27AE60","#6B4226"],
+    veve:"Barque ou bateau à voiles. Rames croisées. Ancre marine. Coquilles de mer entourant le symbole central. Parfois enrichi d'un télescope ou d'hameçons. Tracé lors des cérémonies maritimes sur le rivage ou sur le radeau d'offrandes.",
+    recit:"Maya Deren documente le rituel du radeau pour Agwe : une embarcation chargée d'offrandes est lancée en mer. Si elle coule, Agwe a accepté. Le livre de Deren s'ouvre sur une cérémonie pour Agwe, souverain des mers. Métraux note qu'Agwe vit sur Nan Zile — une île sous-marine — et reçoit ses serviteurs dans un palais sous l'océan.",
+    sources:["Deren, Divine Horsemen","Métraux, Le vaudou haïtien","Britannica – Agwe"]
+  },
+  {
+    name:"La Sirène",nat:"Rada",
+    col:["#2E86AB","#27AE60","#C0C0C0","#7FDBFF"],
+    veve:"Sirène mi-femme mi-poisson. Miroir et peigne dans les mains. Queue de poisson stylisée. Coquilles et étoiles de mer. Son vèvè évoque la beauté et la séduction des profondeurs marines.",
+    recit:"La Sirène est la reine des eaux. Métraux décrit ses chevaux comme des êtres soudain transformés — beauté rayonnante, gestes lents et gracieux comme sous l'eau. Elle est associée à la musique et aux arts. Dessen note que lors de sa possession, le serviteur semble se mouvoir dans un monde liquide, regard lointain tourné vers la mer.",
+    sources:["Métraux, Le vaudou haïtien","Deren, Divine Horsemen","Visit Haiti"]
+  },
+  {
+    name:"Erzulie Freda Dahomey",nat:"Rada",
+    col:["#FFB6C1","#87CEEB","#F5F5F5","#D4A017"],
+    veve:"Cœur élaboré au centre. Trois anneaux de mariage (un pour chaque époux : Danbala, Agwé, Ogou). Fleurs et bijoux. Parfois un miroir. Son vèvè est le plus délicat et le plus ornemental du panthéon — tracé avec soin, il exprime la beauté même.",
+    recit:"Maya Deren consacre un chapitre entier à Erzulie Freda dans Divine Horsemen. Elle décrit ses possessions comme les plus bouleversantes : la personne devient soudain d'une grâce et d'une beauté surnaturelles, réclame parfums et bijoux, puis éclate en larmes — car la beauté de ce monde ne peut jamais être à la hauteur de son idéal. Métraux note qu'elle est « la maîtresse de tous les hommes ».",
+    sources:["Deren, Divine Horsemen","Métraux, Le vaudou haïtien","Britannica – Vèvè"]
+  },
+  {
+    name:"Kouzen Azaka Mede",nat:"Rada",
+    col:["#2E86AB","#E74C3C","#8B6914"],
+    veve:"Djakout (sac de paille) au centre. Chapeau de paille. Machette et houe croisées. Maïs et plantes agricoles. Son vèvè est rustique et direct, à l'image du paysan haïtien qu'il incarne.",
+    recit:"Métraux décrit Azaka comme un personnage comique et attachant lors des cérémonies — il parle en créole rural épais, grogne contre les citadins, réclame du clairin. Maya Deren note qu'il est le seul lwa qui assume pleinement la condition paysanne haïtienne. Son djakout ne le quitte jamais.",
+    sources:["Métraux, Le vaudou haïtien","Deren, Divine Horsemen"]
+  },
+  {
+    name:"Sobo",nat:"Rada",
+    col:["#E74C3C","#F5F5F5","#2E86AB"],
+    veve:"Éclair stylisé. Croix et étoiles de foudre. Souvent associé aux symboles de Badessy dans les tracés collectifs des lwa du tonnerre. Tracé lors des cérémonies pour invoquer les forces atmosphériques.",
+    recit:"Sobo, Badessy et Agaou forment une triade des forces du ciel. Métraux note qu'ils viennent tous des ancêtres royaux d'Allada. Agaou dit lors des cérémonies : « Je suis le canonnier de Dieu ; quand je gronde, la terre tremble. »",
+    sources:["Métraux, Le vaudou haïtien","TV Tropes – Voudoun"]
+  },
+  {
+    name:"Agaou",nat:"Rada",
+    col:["#E74C3C","#F5F5F5","#1A1A2E"],
+    veve:"Tempête et tonnerre — symboles d'éclairs en zigzag, de nuages et de pluie. Son vèvè exprime la violence des éléments déchaînés.",
+    recit:"Agaou est le plus féroce des lwa du tonnerre. Il est invoqué lors de tempêtes et de situations d'urgence extrême. Sa parole sacrée : « Je suis le canonnier de Dieu ; quand je gronde, la terre tremble. » Il vient du royaume d'Allada comme Sobo et Badessy.",
+    sources:["Métraux, Le vaudou haïtien","TV Tropes – Voudoun"]
+  },
+  {
+    name:"Agassou",nat:"Rada",
+    col:["#8B6914","#D4A017","#F5F5F5"],
+    veve:"Léopard stylisé. Symboles royaux africains — couronne, lance et bouclier. Crabe (son animal totem lors du voyage vers Haïti). Son vèvè exprime la royauté et la transmission des traditions ancestrales.",
+    recit:"Agassou est le gardien de la pureté de la tradition dahomeyenne. Métraux note qu'il est invoqué par le houngan pour faire venir l'argent au temple. Il est né d'une princesse et d'un léopard. Un chant africain du Bénin dit qu'Ayida Wedo l'envoya en Haïti pour soulager la souffrance des esclaves africains.",
+    sources:["Métraux, Le vaudou haïtien","Britannica – Lwa","Wikipedia – Agassou"]
+  },
+  {
+    name:"Bade",nat:"Rada",
+    col:["#F5F5F5","#87CEEB","#C0C0C0"],
+    veve:"Vent stylisé — lignes courbes évoquant la brise. Plume blanche. Son vèvè est léger et fluide, à l'image du vent qu'il gouverne.",
+    recit:"Badessy est le lwa du vent et de la régulation. Il travaille toujours avec Sobo — ensemble ils invoquent Agaou, le tonnerre. Métraux le décrit comme un médiateur céleste, celui qui calme les conflits atmosphériques et humains.",
+    sources:["Métraux, Le vaudou haïtien","TV Tropes – Voudoun"]
+  },
+  {
+    name:"Klèmezin Klemay",nat:"Rada",
+    col:["#F5F5F5","#C0C0C0","#87CEEB"],
+    veve:"Symbole de lumière et de protection. Souvent représenté par l'image de Sainte Claire dans les autels vodou. Son vèvè inclut des rayons de lumière et des étoiles claires.",
+    recit:"Klèmezin est un lwa de lumière et de protection. Dans les autels vodou haïtiens, l'image de Sainte Claire représente Klèmezin Klemay, esprit qui apporte lumière et protection. Il est souvent le premier lwa représenté sur un autel domestique.",
+    sources:["Tradition orale vodou haïtien","Etsy – Vodou altar guide"]
+  },
+  {
+    name:"Ti Bon Ange",nat:"Rada",
+    col:["#F5F5F5","#C0C0C0","#87CEEB"],
+    veve:"Pas de vèvè propre — le Ti Bon Ange est une composante de l'âme humaine, pas un lwa externe. Il est parfois symbolisé par une flamme de bougie blanche ou un oiseau blanc.",
+    recit:"Maya Deren explique dans Divine Horsemen que chaque être humain possède deux parties d'âme : le Gwo Bon Ange (portion divine universelle qui retourne à Dieu à la mort) et le Ti Bon Ange (identité personnelle unique et vulnérable). C'est le Ti Bon Ange que le sorcier capture pour créer un zombie. Métraux consacre un chapitre à cette dualité de l'âme dans le vodou.",
+    sources:["Deren, Divine Horsemen","Métraux, Le vaudou haïtien"]
+  },
+  {
+    name:"Simbi",nat:"Kongo",
+    col:["#27AE60","#1A1A2E","#2E86AB"],
+    veve:"Croix de carrefour d'eaux. Serpents d'eau. Symboles de rivière et de source. Parfois un caïman ou une grenouille au centre. Son vèvè est tracé au bord des sources et des rivières.",
+    recit:"Simbi est le messager de Legba, le Mercure du vodou. Il conduit les âmes des morts dans toutes les directions. Métraux note que la tradition vodou connaît pas moins de 27 noms différents pour Simbi, couvrant les nations Rada, Petro et Kongo. Il est l'esprit des eaux douces par excellence.",
+    sources:["Métraux, Le vaudou haïtien","Deren, Divine Horsemen"]
+  },
+  {
+    name:"Simbi Andezo",nat:"Kongo",
+    col:["#27AE60","#2E86AB","#C0C0C0"],
+    veve:"Entre deux eaux — vèvè combinant les symboles de l'eau douce et de la mer. Symbolise la frontière entre Rada et Petro.",
+    recit:"Simbi Andezo signifie littéralement « entre deux eaux ». Il est l'aspect de Simbi qui navigue entre la douceur du Rada et la chaleur du Petro — un lwa de frontière, de transition et de médiation entre deux mondes.",
+    sources:["Métraux, Le vaudou haïtien","Tradition orale vodou"]
+  },
+  {
+    name:"Kongo",nat:"Kongo",
+    col:["#E74C3C","#1A1A2E","#27AE60"],
+    veve:"Symboles Congo — croix à quatre pointes représentant les quatre vents. Serpent boa. Feu et eau combinés. Tracé lors des rituels de maré paquè et de monté Bila.",
+    recit:"Les lwa Kongo portent la mémoire de l'Afrique centrale. Métraux souligne leur importance dans les rituels de paquets liés (paket kongo) qui sont au cœur de la magie Kongo intégrée au Kanzò haïtien.",
+    sources:["Métraux, Le vaudou haïtien","Tradition orale vodou"]
+  },
+  {
+    name:"Lemba",nat:"Kongo",
+    col:["#F5F5F5","#E74C3C","#C0C0C0"],
+    veve:"Balance et route commerciale. Symboles de traité et d'accord. Son vèvè évoque la diplomatie et la santé.",
+    recit:"Lemba est un lwa Kongo associé aux routes commerciales africaines. Il protège les commerçants et les voyageurs. Sa tradition trouve ses racines dans les sociétés thérapeutiques Lemba d'Afrique centrale.",
+    sources:["Métraux, Le vaudou haïtien","Britannica – Lwa"]
+  },
+  {
+    name:"Ibo",nat:"Ibo",
+    col:["#F5F5F5","#808080","#87CEEB"],
+    veve:"Symboles Ibo du Nigeria — lignes de deuil et de mélancolie. Colombe blanche. Son vèvè est sobre et empreint de tristesse.",
+    recit:"Les lwa Ibo portent la mémoire des peuples Ibo du Nigeria, déportés en Haïti. Métraux les décrit comme des esprits de deuil et de transformation. Ibo Lele est une figure féminine ou androgyne associée au passage et à la nostalgie des origines africaines.",
+    sources:["Métraux, Le vaudou haïtien","Britannica – Lwa"]
+  },
+  {
+    name:"Ogou Feray",nat:"Nago",
+    col:["#E74C3C","#00008B"],
+    veve:"Sabre ou machette au centre. Épée et fer à cheval. Flamme de forge. Son vèvè est le totem des empereurs et rois qui ont suivi Abiodun, roi du peuple Oyo — un symbole de puissance militaire et de leadership guerrier.",
+    recit:"Métraux décrit Ogou Feray comme « un général féroce qui travaille dur pour ses enfants mais peut être moussade ». Maya Deren note la puissance de ses possessions : le serviteur devient soldat, saisit une machette, boit du rhum fort directement à la bouteille. Ogou fut l'esprit de la résistance haïtienne lors de la révolution.",
+    sources:["Métraux, Le vaudou haïtien","Deren, Divine Horsemen","Britannica – Vèvè"]
+  },
+  {
+    name:"Ogou Badagri",nat:"Nago",
+    col:["#E74C3C","#556B2F","#8B8682"],
+    veve:"Sabre du général — plus élaboré que celui de Feray. Éléments de stratégie militaire : carte, étoiles de grade. Couleurs kaki et rouge intégrées dans le tracé.",
+    recit:"Ogou Badagri est le diplomate, le général stratège. Son nom vient de Badagry, Nigeria — point de non-retour de la traite négrière. Il est invoqué pour les affaires de justice et de leadership. Sa parole est un serment : trahir une promesse faite en son nom entraîne des conséquences.",
+    sources:["Lwa and Order – Badagri","Métraux, Le vaudou haïtien"]
+  },
+  {
+    name:"Ogou Balindjo",nat:"Nago",
+    col:["#2E86AB","#F5F5F5"],
+    veve:"Sabre de l'amiral — bleu et blanc. Éléments marins combinés aux symboles guerriers Nago. Plus serein que les autres Ogou.",
+    recit:"Balindjo est comparé à un amiral de la marine. Il représente la force, la patience et la garde des traditions. Figure d'un vieillard sage dans certaines descriptions, il est aussi gardien du savoir — ses clés déverrouillent les mystères profondes de la tradition Nago.",
+    sources:["Lore of Ancestors – Ogou","Métraux, Le vaudou haïtien"]
+  },
+  {
+    name:"Ogou Chango",nat:"Nago",
+    col:["#E74C3C","#F5F5F5"],
+    veve:"Double hache (oshe) — symbole de Shango/Chango. Éclair et foudre. Rouge et blanc dominent le tracé.",
+    recit:"Shango est le maître du tonnerre et de l'éclair dans la tradition Yoruba. Son culte, l'un des plus répandus en Afrique de l'Ouest, s'est intégré au vodou haïtien via la nanchon Nago. Métraux note que son vèvè est le totem des rois guerriers yoruba.",
+    sources:["Métraux, Le vaudou haïtien","Britannica – Lwa"]
+  },
+  {
+    name:"Ogou Achade",nat:"Nago",
+    col:["#E74C3C","#D4A017"],
+    veve:"Sabre rouge et or. Symboles royaux Nago. L'or de son vèvè distingue Achade comme un aspect noble et élevé de la famille Ogou.",
+    recit:"Ogou Achade est l'un des quatre Ogou identifiés à Saint-Jacques le Majeur dans les différentes régions d'Haïti. Il est associé à la noblesse militaire et au leadership éclairé.",
+    sources:["Métraux, Le vaudou haïtien","Potomitan – Symbolisme vodou"]
+  },
+  {
+    name:"Ogou Yamson",nat:"Nago",
+    col:["#E74C3C","#1A1A2E"],
+    veve:"Sabre rouge et noir. Aspect plus sombre de la famille Ogou. Son vèvè porte les couleurs de la guerre nocturne.",
+    recit:"Yamson est un aspect moins connu mais puissant de la famille Ogou. Rouge et noir dominent — il est invoqué dans les moments de combat intense et de transformation par la force.",
+    sources:["Métraux, Le vaudou haïtien","Tradition orale vodou"]
+  },
+  {
+    name:"Baron Samedi",nat:"Gede",
+    col:["#1A1A2E","#6B2C8A","#F5F5F5"],
+    veve:"Tombe surmontée d'une croix et de deux cercueils. Crâne. Chapeau haut-de-forme et lunettes à verre manquant. Son vèvè est le plus reconnaissable du panthéon — synonyme de la mort qui rit.",
+    recit:"Métraux décrit les cérémonies Gede comme les plus populaires et les plus bruyantes. Baron dévore piments et rhum fort sous les yeux de la foule stupéfaite. Maya Deren écrit qu'il est le seul lwa qui peut véritablement refuser la mort — si Baron ne creuse pas la tombe, le mourant survit. Les cérémonies du 2 novembre dans les cimetières haïtiens lui sont entièrement dédiées.",
+    sources:["Métraux, Le vaudou haïtien","Deren, Divine Horsemen","Wikipedia – Baron Samedi"]
+  },
+  {
+    name:"Baron La Kwa",nat:"Gede",
+    col:["#1A1A2E","#F5F5F5","#6B2C8A"],
+    veve:"Croix de cimetière élaborée. Plus sophistiqué que celui de Baron Samedi. Canne ornementée et redingote.",
+    recit:"Baron La Kwa est l'aspect élégant et cultivé de Baron. Moins bruyant que Samedi, plus suave et raffiné. Il est aussi appelé Azagon Lacroix — frère de Baron Samedi.",
+    sources:["Métraux, Le vaudou haïtien","Tradition orale vodou"]
+  },
+  {
+    name:"Baron Cimityè",nat:"Gede",
+    col:["#1A1A2E","#F5F5F5"],
+    veve:"Cimetière stylisé — rangées de tombes et de croix. Gardien des espaces funèbres.",
+    recit:"Baron Cimityè est le gardien des tombes et des cimetières. Métraux note qu'il forme avec Maître Carrefour et Gran Bwa la triade des grands magiciens du vodou. Son domaine est le cimetière comme espace sacré.",
+    sources:["Métraux, Le vaudou haïtien","Tradition orale vodou"]
+  },
+  {
+    name:"Papa Gede",nat:"Gede",
+    col:["#1A1A2E","#6B2C8A","#F5F5F5"],
+    veve:"Premier mort — croix simple et crâne. Son vèvè est plus sobre que celui de Baron Samedi.",
+    recit:"Papa Gede est le premier mort enterré dans le cimetière — celui qui accueille toutes les nouvelles âmes. Métraux note qu'il représente la mort naturelle et saine. Il est le passeur des âmes vers l'au-delà.",
+    sources:["Métraux, Le vaudou haïtien","Tradition orale vodou"]
+  },
+  {
+    name:"Brav Gede",nat:"Gede",
+    col:["#6B2C8A","#1A1A2E"],
+    veve:"Mauve et noir — symboles du courage face à la mort. Son vèvè porte la couleur mauve dominante qui le distingue au sein de la famille Gede.",
+    recit:"Brav Gede est « le courageux Gede » — l'aspect de la mort qui affronte l'inévitable avec bravoure. Métraux évoque sa présence lors des cérémonies funèbres.",
+    sources:["Métraux, Le vaudou haïtien","Tradition orale vodou"]
+  },
+  {
+    name:"Gede Nibo",nat:"Gede",
+    col:["#6B2C8A","#1A1A2E","#F5F5F5"],
+    veve:"Violet et noir — symboles de la mort prématurée. Son vèvè exprime la jeunesse perdue.",
+    recit:"Gede Nibo est l'esprit des morts prématurés — ceux qui sont partis trop tôt. Il est l'enfant adoptif de Maman Brigitte. Maya Deren le décrit comme un esprit particulièrement actif dans les esprits des jeunes défunts.",
+    sources:["Deren, Divine Horsemen","Wikipedia – Maman Brigitte"]
+  },
+  {
+    name:"Maman Brigit",nat:"Gede",
+    col:["#1A1A2E","#6B2C8A","#F5F5F5"],
+    veve:"Trois lignes parallèles décorées de petites croix et d'un cœur. Son vèvè est à la fois doux (le cœur) et sévère (les croix funèbres). Les tombes marquées de pierres lui appartiennent.",
+    recit:"Maya Deren cite Maman Brigitte dans Divine Horsemen — les premières tombes de chaque cimetière lui sont dédiées si elles sont féminines. Métraux note qu'elle est la seule lwa haïtienne d'origine européenne (irlandaise) absorbée dans le panthéon. Elle est la mère adoptive de Gede Nibo et l'épouse de Baron Samedi.",
+    sources:["Deren, Divine Horsemen","Métraux, Le vaudou haïtien","Wikipedia – Maman Brigitte"]
+  },
+  {
+    name:"Kalfou",nat:"Petro",
+    col:["#1A1A2E","#E74C3C","#4B0082"],
+    veve:"Croix de nuit — même forme que celle de Legba mais en noir et rouge. Porte fermée. Son vèvè est tracé à minuit aux carrefours sombres, avec de la poudre à canon ou de la cendre noire.",
+    recit:"Métraux écrit que Kalfou est le jumeau sombre de Legba. Là où Legba favorise, Kalfou sème la malchance. Là où Legba ouvre, Kalfou ferme. Maya Deren note que les gens ne parlent pas en présence de Kalfou — sa puissance impose le silence absolu. Grand, musclé, il contrôle les esprits malveillants de la nuit.",
+    sources:["Métraux, Le vaudou haïtien","Deren, Divine Horsemen","Webster University – Loa list"]
+  },
+  {
+    name:"Ezili Dantò",nat:"Petro",
+    col:["#00008B","#E74C3C","#1A1A2E"],
+    veve:"Cœur percé d'un ou deux poignards. Chaînes et anneaux d'or. Symboles de protection maternelle féroce. Tracé lors des rituels de protection des femmes et des enfants.",
+    recit:"Métraux décrit Erzulie Dantò comme la contrepartie sombre d'Erzulie Freda. Maya Deren note que lors de sa possession, le serviteur est muet — Dantò communique par grognements et couteaux. La légende dit que Freda lui a coupé la langue lors de leur querelle pour Ogou. Elle est invoquée à Bwa Kayiman — Marinette sacrifia le cochon noir pour elle lors du pacte de la Révolution haïtienne.",
+    sources:["Métraux, Le vaudou haïtien","Deren, Divine Horsemen","Wikipedia – Erzulie"]
+  },
+  {
+    name:"Marinette Bwa Chèch",nat:"Petro",
+    col:["#1A1A2E","#8B0000"],
+    veve:"Squelette ou corps décharné — Marinette aux bras secs. Anima Sola — femme brisant ses chaînes dans les flammes du purgatoire. Son vèvè exprime la violence nécessaire à la survie et à la libération.",
+    recit:"Marinette est la mambo qui sacrifia le cochon noir à Ezili Dantò lors du pacte de Bwa Kayiman — rituel fondateur de la Révolution haïtienne de 1791. Elle exhorta les témoins à se venger des esclavagistes français. Métraux la décrit comme l'une des lwa les plus redoutées du rite Petro. Elle est représentée par l'Anima Sola.",
+    sources:["Métraux, Le vaudou haïtien","TV Tropes – Voudoun","Tradition orale vodou"]
+  },
+  {
+    name:"Ti Jean Petro",nat:"Petro",
+    col:["#E74C3C","#1A1A2E"],
+    veve:"Feu stylisé. Machette Petro — plus courte et plus tranchante que celle d'Ogou. Rouge et noir dominent le tracé.",
+    recit:"Ti Jean Petro est le fils ou l'amant d'Ezili Dantò selon les traditions. Métraux le décrit comme un jeune homme robuste dont les résultats sont rapides et puissants. Il est le feu du rite Petro incarné.",
+    sources:["Métraux, Le vaudou haïtien","Wikipedia – Erzulie"]
+  },
+  {
+    name:"Don Pedro",nat:"Petro",
+    col:["#E74C3C","#1A1A2E"],
+    veve:"Feu de la liberté — flammes stylisées. Chaînes brisées. Le vèvè de Don Pedro exprime la rupture et la révolution.",
+    recit:"Don Pedro (Jean-Philippe Pedro) était un esclave africain du XVIIIe siècle qui créa les danses et le rite Petro lors des périodes coloniales haïtiennes. Métraux rapporte que son nom fut donné à tout le rite. Il est l'ancêtre humain déifié du rite Petro — symbole de résistance et de libération.",
+    sources:["Métraux, Le vaudou haïtien","Scribd – Vodou Pantheon"]
+  },
+  {
+    name:"Bosou Trois Cornes",nat:"Petro",
+    col:["#E74C3C","#1A1A2E"],
+    veve:"Taureau à trois cornes. Force triple symbolisée. Son vèvè exprime la puissance brute décuplée.",
+    recit:"Bosou Trois Cornes est la version Petro de Bossou — plus féroce, plus puissante, les trois cornes symbolisant une force triple. Métraux note que les Taureaux Royaux sont des ancêtres de la famille royale dahomeyenne réincarnés comme lwa protecteurs.",
+    sources:["Métraux, Le vaudou haïtien","Tradition orale vodou"]
+  },
+  {
+    name:"Gran Bwa",nat:"Petro",
+    col:["#1A4D2E","#3B2408","#1A1A2E"],
+    veve:"Arbre massif aux racines profondes. Branches entrelacées de serpents. Feuilles sacrées. Son vèvè est le plus végétal du panthéon — tracé avec des plantes pilées parfois mêlées à la farine.",
+    recit:"Gran Bwa est le maître absolu des plantes et des herbes sauvages. Métraux le place dans la triade des grands magiciens avec Maître Carrefour et Baron Cimetière. Maya Deren le décrit comme une force de la nature primitive, imprévisible. Il est à la frontière entre Rada et Petro — doux dans sa sagesse botanique, féroce dans sa puissance sauvage.",
+    sources:["Métraux, Le vaudou haïtien","Deren, Divine Horsemen"]
+  },
+  {
+    name:"Makaya",nat:"Petro",
+    col:["#1A1A2E","#E74C3C"],
+    veve:"Symboles Congo-Petro entrelacés. Nuit et feu. Son vèvè est tracé dans les rituels de magie profonde.",
+    recit:"Makaya est associé aux peuples Makaya du Congo. Métraux note que le rite Makaya est l'un des rites de magie les plus profonds et les plus secrets du vodou haïtien. Il travaille étroitement avec Simbi Makaya.",
+    sources:["Métraux, Le vaudou haïtien","Tradition orale vodou"]
+  },
+  {
+    name:"Simbi Makaya",nat:"Petro",
+    col:["#E74C3C","#1A1A2E","#27AE60"],
+    veve:"Serpent Petro — rouge et noir. Eau transformée en feu. Son vèvè combine les symboles aquatiques de Simbi avec l'intensité du rite Petro.",
+    recit:"Simbi Makaya est l'aspect Petro de Simbi — il partage des attributs avec Maître Kalfou. Tous deux sont forts et potentiellement dangereux dans leurs domaines. Il est invoqué pour briser les forces négatives et les blocages spirituels. La tradition connaît 27 noms différents pour Simbi, dont Makaya est l'un des plus puissants.",
+    sources:["Métraux, Le vaudou haïtien","Do Magick – Simbi Makaya research"]
+  },
+  {
+    name:"Erzulie Je Wouj",nat:"Erzulie",
+    col:["#E74C3C","#1A1A2E"],
+    veve:"Yeux rouges de larmes et de fureur. Cœur en feu. Son vèvè exprime la jalousie divine et la vengeance féminine.",
+    recit:"Erzulie Je Wouj (aux Yeux Rouges) est l'aspect furieux d'Erzulie. Ses yeux sont rouges de larmes versées et de colère accumulée. Elle représente la jalousie divine, la passion qui brûle et détruit. Métraux la mentionne comme une force de vengeance redoutable.",
+    sources:["Métraux, Le vaudou haïtien","Tradition orale vodou"]
+  }
+];
+
+const NATS=["Tout","Rada","Petro","Gede","Nago","Kongo","Ibo","Erzulie"];
+let cur="Tout";
+
+function buildTabs(){
+  const t=document.getElementById("tabs");
+  NATS.forEach(n=>{
+    const b=document.createElement("button");
+    b.className="tab"+(n===cur?" on":"");
+    b.textContent=n;
+    b.onclick=()=>{cur=n;document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));b.classList.add("on");render();};
+    t.appendChild(b);
+  });
+}
+
+function render(){
+  const q=document.getElementById("srch").value.toLowerCase();
+  const list=DATA.filter(l=>{
+    const mN=cur==="Tout"||l.nat===cur;
+    const mQ=!q||l.name.toLowerCase().includes(q)||l.nat.toLowerCase().includes(q)||l.veve.toLowerCase().includes(q)||l.recit.toLowerCase().includes(q);
+    return mN&&mQ;
+  });
+  document.getElementById("cnt").textContent=list.length+" lwa affiché"+(list.length>1?"s":"");
+  const el=document.getElementById("list");
+  if(!list.length){el.innerHTML='<div class="no-res">Aucun résultat.</div>';return;}
+  el.innerHTML=list.map((l,i)=>`
+    <div class="card" id="c${i}" onclick="toggle('c${i}')">
+      <div class="card-head">
+        <div class="head-left">
+          <div class="lname">${l.name}</div>
+        </div>
+        <div class="head-right">
+          <span class="nat nat-${l.nat.replace(/\s/g,"")}">${l.nat}</span>
+          <i class="ti ti-chevron-down chev" aria-hidden="true"></i>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="swatches">${l.col.map(c=>`<div class="sw" style="background:${c}" title="${c}"></div>`).join("")}</div>
+        <div class="section">
+          <div class="slabel">Vèvè — symbole sacré</div>
+          <div class="veve-box">${l.veve}</div>
+        </div>
+        <div class="section">
+          <div class="slabel">Récit & tradition</div>
+          <div class="sbody">${l.recit}</div>
+        </div>
+        <div class="section">
+          <div class="slabel">Sources</div>
+          <div class="sources">${l.sources.map(s=>`<span class="src">${s}</span>`).join("")}</div>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function toggle(id){
+  document.getElementById(id).classList.toggle("open");
+}
+
+buildTabs();
+render();
+</script>

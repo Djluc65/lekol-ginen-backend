@@ -6,7 +6,7 @@
   "main": "src/server.js",
   "scripts": {
     "dev": "PRISMA_CLIENT_ENGINE_TYPE=library node --watch src/server.js",
-    "start": "PRISMA_CLIENT_ENGINE_TYPE=library node src/server.js",
+    "start": "PRISMA_CLIENT_ENGINE_TYPE=library npx prisma db push && PRISMA_CLIENT_ENGINE_TYPE=library node src/server.js",
     "seed": "PRISMA_CLIENT_ENGINE_TYPE=library node src/seed/seed-lwa.js",
     "postinstall": "prisma generate"
   },

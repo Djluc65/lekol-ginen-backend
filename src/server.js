@@ -27,7 +27,7 @@ import { initMeilisearch } from './lib/meilisearch.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const ROOT_DIR = resolve(__dirname, '../../');
+const ROOT_DIR = resolve(__dirname, '../'); // Path to backend/ folder
 
 async function build() {
   const fastify = Fastify({

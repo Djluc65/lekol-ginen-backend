@@ -5,7 +5,7 @@ import { dirname, resolve } from 'node:path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const IMAGE_ROOT = resolve(__dirname, '../../../Image');
+const IMAGE_ROOT = resolve(__dirname, '../../Image');
 
 function safeReaddir(path) {
   try {
